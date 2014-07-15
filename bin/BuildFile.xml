@@ -22,3 +22,5 @@
 <bin   name="jet_draw_closure_eta_x"           file="jet_draw_closure_eta_x.cc" />
 <bin   name="jet_draw_l2_correction_x"         file="jet_draw_l2_correction_x.cc" />
 
+<bin   name="HI_weight.exe" file="HI_weight.C" />
+<bin   name="HI_CalJec.exe" file="HI_CalJec.C" />
