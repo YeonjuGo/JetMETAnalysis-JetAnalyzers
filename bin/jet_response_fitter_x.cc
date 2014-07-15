@@ -34,6 +34,9 @@ using namespace std;
 // define local functions
 ////////////////////////////////////////////////////////////////////////////////
 
+//! Double Gaussian
+void fit_double_gaussian(TH1F*& hrsp);
+
 
 /// default fit with gaussian in niter iteration of mean
 void fit_gaussian(TH1F*& hrsp,
@@ -93,12 +96,12 @@ int main(int argc,char**argv)
   if (!cl.check()) return 0;
   cl.print();
   
-  if (fittype<0 || fittype>1) {
-    cout<<"ERROR: fittype not known, choose 0 for GAUSS, 1 for DSCB";return 0;
+  if (fittype<0 || fittype>2) {
+    cout<<"ERROR: fittype not known, choose 0 for GAUSS, 1 for DSCB, 2 for DGAUSS";return 0;
   }
-  else if (0==fittype) cout<<"*** Fitting with distributions w/ GAUSS"<<endl;
-  else cout<<"*** Fitting response distributions w/ DSCB"<<endl; 
-
+  else if (0==fittype)cout<<"*** Fitting with distributions w/ GAUSS"<<endl;
+  else if (1==fittype)cout<<"*** Fitting response distributions w/ DSCB"<<endl; 
+  else cout<<"*** Fitting response distributions w/ Double Gauss"<<endl; 
   //
   // construct output file name from input file name if none given
   //
@@ -160,7 +163,18 @@ int main(int argc,char**argv)
       if (hrsp->Integral()>0.0) {
         int fitstatus(0);
         if (0==fittype) fit_gaussian(hrsp,nsigma,jtptmin,niter);
-        else fitstatus = fit_dscb(hrsp,nsigma,jtptmin,niter,alg);
+        else if(1==fittype)fitstatus = fit_dscb(hrsp,nsigma,jtptmin,niter,alg);
+        else if(2==fittype){
+	  if(alg.find("1")!=string::npos || alg.find("2")!=string::npos){
+	    if(histname.find("10to15")!=string::npos ||
+	       histname.find("15to20")!=string::npos ||	     
+	       histname.find("20to27")!=string::npos ||	     
+	       histname.find("27to35")!=string::npos)fit_double_gaussian(hrsp);
+	    else  fit_gaussian(hrsp,nsigma,jtptmin,niter);
+	  }else{
+	    fit_gaussian(hrsp,nsigma,jtptmin,niter);
+	  }
+	}
 
         TF1* fitfnc = (TF1*) hrsp->GetListOfFunctions()->Last();
         if (0!=fitfnc && 0==fitstatus) fitfnc->ResetBit(TF1::kNotDraw);
@@ -389,6 +403,8 @@ void fit_gaussian(TH1F*& hrsp,
     vv.push_back(peak-nsigma*sigma);   
     double fitrange_min = *std::max_element(vv.begin(),vv.end());
     double fitrange_max = std::min(xmax,peak+nsigma*sigma);
+    //double fitrange_min = 0.2;
+    //double fitrange_max = 1.7;
     adjust_fitrange(hrsp,fitrange_min,fitrange_max);
     fitfnc = new TF1("fgaus","gaus",fitrange_min,fitrange_max);
     fitfnc->SetParNames("N","#mu","#sigma");
@@ -399,24 +415,109 @@ void fit_gaussian(TH1F*& hrsp,
     delete fitfnc;
     fitfnc = hrsp->GetFunction("fgaus");
     //fitfnc->ResetBit(TF1::kNotDraw);
-    if (fitfnc) {
-       norm  = fitfnc->GetParameter(0);
-       peak  = fitfnc->GetParameter(1);
-       sigma = fitfnc->GetParameter(2);
-    }
+    norm  = fitfnc->GetParameter(0);
+    peak  = fitfnc->GetParameter(1);
+    sigma = fitfnc->GetParameter(2);
   }
   if(hrsp->GetFunction("fgaus")==0)
     {
       cout << "No function recorded in histogram " << hrsp->GetName() << endl;
     }
+//   if (0==fitstatus){
+//     cout<<"fit_gaussian() to "<<hrsp->GetName()    <<"  sucessful : " <<endl;
+//   }
   if (0!=fitstatus){
     cout<<"fit_gaussian() to "<<hrsp->GetName()
+	<<" failed. Fitstatus: "<<fitstatus
+	<<" - FNC deleted."<<endl;
+    hrsp->GetListOfFunctions()->Delete();
+  }
+}
+void fit_double_gaussian(TH1F*& hrsp)
+{
+  if (0==hrsp) {
+    cout<<"ERROR: Empty pointer to fit_double_gaussian()"<<endl;return;
+  }
+
+
+  
+  string histname = hrsp->GetName();
+  double mean     = hrsp->GetMean();
+  double rms      = hrsp->GetRMS();
+
+  int maxbin    = hrsp->GetMaximumBin();
+  double norm1  = hrsp->GetBinContent(maxbin);
+  double peak1  = hrsp->GetBinCenter(maxbin);
+  double sigma1 = 0.1;
+
+  double norm2  = norm1/1.5;
+  double peak2  = mean;
+  double sigma2 = 1.5;
+
+  // cout << " Mean  : "  << mean  << " \t  RMS  : " << rms    << endl;
+  // cout << " norm1 : "  << norm1 << " \t  norm2 : " << norm2 << endl;
+  // cout << " peak1 : "  << peak1 << " \t  sig1 : " << sigma1 << endl;
+  // cout << " peak2 : "  << peak2 << " \t  sig2 : " << sigma2 << endl;
+
+  double fitrange_min = 0.2;
+  double fitrange_max = 1.7;
+
+  TF1* fitfnc(0); int fitstatus(-1);
+  TF1 *fitg1(0), *fitg2(0);
+
+  fitfnc = new TF1("fdgaus","gaus(0)+gaus(3)",fitrange_min,fitrange_max);
+  fitfnc->SetLineColor(1);
+  fitfnc->SetLineStyle(2);
+  fitfnc->SetLineWidth(2);
+
+  fitfnc->SetParNames("N_{1}", "#mu_{1}", "#sigma_{1}",
+		      "N_{2}", "#mu_{2}", "#sigma_{2}");
+  fitfnc->SetParameters(norm1, peak1, sigma1, 
+			norm2, peak2, sigma2); 
+
+
+  fitfnc->SetParLimits(0,0.0,2.0*norm1);
+  fitfnc->SetParLimits(1,peak1-4.0*sigma1,peak1+4.0*sigma1);
+  fitfnc->SetParLimits(2,0.01,4.0*sigma1);
+
+  fitfnc->SetParLimits(3,0.0,2.5*norm2);
+  fitfnc->SetParLimits(4,peak2-4.0*sigma2,peak2+4.0*sigma2);
+  fitfnc->SetParLimits(5,0.10,2.0*sigma2);
+
+  fitstatus = hrsp->Fit(fitfnc,"R");
+  if (0!=fitstatus){
+    fitfnc->SetParLimits(4,0.2,1.7);
+    fitfnc->SetParLimits(5,2.0,10.0);
+    //cout <<" Not able to Fit this pt bin " << hrsp->GetName() << endl;
+  }
+  fitstatus = hrsp->Fit(fitfnc,"RQ");
+  hrsp->SetMaximum(norm1+0.2*norm1);
+  fitg1 = new TF1("fg1","gaus(0)",fitrange_min,fitrange_max);
+  fitg1->SetParameters(fitfnc->GetParameter(0),
+		       fitfnc->GetParameter(1),
+		       fitfnc->GetParameter(2));
+  fitg1->SetLineColor(2);
+  fitg1->SetLineStyle(2);
+  hrsp->GetListOfFunctions()->Add(fitg1);
+
+  fitg2 = new TF1("fg2","gaus(0)",fitrange_min,fitrange_max);
+  fitg2->SetParameters(fitfnc->GetParameter(3),
+		       fitfnc->GetParameter(4),
+		       fitfnc->GetParameter(5));
+  fitg2->SetLineColor(4);
+  fitg2->SetLineStyle(4);
+  hrsp->GetListOfFunctions()->Add(fitg2);
+
+  if(hrsp->GetFunction("fdgaus")==0){
+    cout << "No function recorded in histogram " << hrsp->GetName() << endl;
+  }
+  if (0!=fitstatus){
+    cout<<"fit_double_gaussian() to "<<hrsp->GetName()
         <<" failed. Fitstatus: "<<fitstatus
         <<" - FNC deleted."<<endl;
     hrsp->GetListOfFunctions()->Delete();
   }
 }
-
 
 //______________________________________________________________________________
 bool contains(const vector<string>& collection,const string& element)

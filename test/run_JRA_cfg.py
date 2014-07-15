@@ -28,27 +28,18 @@ process = cms.Process("JRA")
 #! CONDITIONS (DELIVERING JEC BY DEFAULT!)
 #!
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "START53_V7F::All"
+process.GlobalTag.globaltag = "START44_V12::All"
 
 
 #!
 #! INPUT
 #!
 qcdFiles = cms.untracked.vstring(
-###########
-# with PU #
-###########
-    '/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/FA333B66-8ED2-E111-AF2E-0030487D8151.root',
-    '/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/004CB136-A1D3-E111-B958-0030487E4B8D.root',
-    '/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/007D8FA7-B7D3-E111-B904-003048F0E1B0.root',
-    '/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/00E7FCBF-C2D3-E111-A9D5-003048F0E194.root',
-##############
-# without PU #
-##############
-#   '/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/NoPileup_START53_V7A-v1/0000/001252D8-A0E4-E111-A131-0030487D5D8D.root',
-#   '/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/NoPileup_START53_V7A-v1/0000/00684351-86E4-E111-AAE9-002481E10B86.root',
-#   '/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/NoPileup_START53_V7A-v1/0000/02764AB0-ABE4-E111-9407-003048C69296.root',
+	     '/store/mc/Fall11/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/GEN-SIM-RECO/PU_S6_START44_V9B-v1/0000/0051CEDD-EA3E-E111-BA1D-0026189438DD.root'
+         #'/store/mc/Summer12/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/GEN-SIM-RECO/PU_S7_START52_V5-v1/0000/FEEA2CFE-9B7B-E111-BD9F-00266CFFA1FC.root'
+         ##'/store/user/lpcjm/lungu/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/Fall11-QCD_Pt-15to3000_TuneZ2_7TeV_pythia6_reHLTRAWRECO_v3//564fc77dd089d3ffa20dc78b12538743/myQCD_RECO_89_1_0W5.root'
     )
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.source = cms.Source("PoolSource", fileNames = qcdFiles )
 
@@ -94,73 +85,69 @@ algorithms.append('ak7pfchs')
 algorithms.append('ak5jpt')
 algorithms.append('ak7jpt')
 
-algorithms.append('ak5calol1')
-algorithms.append('ak7calol1')
+#algorithms.append('ak5calol1')
 #algorithms.append('ak5caloHLTl1')
-algorithms.append('ak5pfl1')
-algorithms.append('ak7pfl1')
-algorithms.append('ak5pfchsl1')
-algorithms.append('ak7pfchsl1')
+#algorithms.append('ak7calol1')
+#algorithms.append('ak5pfl1')
+#algorithms.append('ak7pfl1')
+#algorithms.append('ak5pfchsl1')
+#algorithms.append('ak7pfchsl1')
 #algorithms.append('ak5pfHLTl1')
 #algorithms.append('ak5pfchsHLTl1')
-algorithms.append('ak5jptl1')
-algorithms.append('ak7jptl1')
 
-algorithms.append('ak5calol1off')
-algorithms.append('ak7calol1off')
+#algorithms.append('ak5calol1off')
+#algorithms.append('ak7calol1off')
 #algorithms.append('ak5caloHLTl1off')
-algorithms.append('ak5pfl1off')
-algorithms.append('ak7pfl1off')
-algorithms.append('ak5pfchsl1off')
-algorithms.append('ak7pfchsl1off')
+#algorithms.append('ak5pfl1off')
+#algorithms.append('ak7pfl1off')
+#algorithms.append('ak5pfchsl1off')
+#algorithms.append('ak7pfchsl1off')
 #algorithms.append('ak5pfHLTl1off')
 #algorithms.append('ak5pfchsHLTl1off')
-algorithms.append('ak5jptl1off')
-algorithms.append('ak7jptl1off')
+#algorithms.append('ak5jptl1')
+#algorithms.append('ak7jptl1')
 
-algorithms.append('ak5calol2l3')
-algorithms.append('ak7calol2l3')
+#algorithms.append('ak5calol2l3')
+#algorithms.append('ak7calol2l3')
 #algorithms.append('kt4calol2l3')
 #algorithms.append('kt6calol2l3')
 #algorithms.append('ak5caloHLTl2l3')
-algorithms.append('ak5pfl2l3')
-algorithms.append('ak7pfl2l3')
+#algorithms.append('ak5pfl2l3')
+#algorithms.append('ak7pfl2l3')
 #algorithms.append('kt4pfl2l3')
 #algorithms.append('kt6pfl2l3')
-algorithms.append('ak5pfchsl2l3')
-algorithms.append('ak7pfchsl2l3')
+#algorithms.append('ak5pfchsl2l3')
+#algorithms.append('ak7pfchsl2l3')
 #algorithms.append('ak5pfHLTl2l3')
 #algorithms.append('ak5pfchsHLTl2l3')
-algorithms.append('ak5jptl2l3')
-algorithms.append('ak7jptl2l3')
+#algorithms.append('ak5jptl2l3')
+#algorithms.append('ak7jptl2l3')
 
-algorithms.append('ak5calol1l2l3')
-algorithms.append('ak7calol1l2l3')
+#algorithms.append('ak5calol1l2l3')
+#algorithms.append('ak7calol1l2l3')
 #algorithms.append('kt4calol1l2l3')
 #algorithms.append('kt6calol1l2l3')
 #algorithms.append('ak5caloHLTl1l2l3')
-algorithms.append('ak5pfl1l2l3')
-algorithms.append('ak7pfl1l2l3')
+#algorithms.append('ak5pfl1l2l3')
+#algorithms.append('ak7pfl1l2l3')
 #algorithms.append('kt4pfl1l2l3')
 #algorithms.append('kt6pfl1l2l3')
-algorithms.append('ak5pfchsl1l2l3')
-algorithms.append('ak7pfchsl1l2l3')
+#algorithms.append('ak5pfchsl1l2l3')
+#algorithms.append('ak7pfchsl1l2l3')
 #algorithms.append('ak5pfHLTl1l2l3')
 #algorithms.append('ak5pfchsHLTl1l2l3')
-algorithms.append('ak5jptl1l2l3')
-algorithms.append('ak7jptl1l2l3')
 
-algorithms.append('ak5calol1offl2l3')
-algorithms.append('ak7calol1offl2l3')
+#algorithms.append('ak5calol1offl2l3')
+#algorithms.append('ak7calol1offl2l3')
 #algorithms.append('ak5caloHLTl1offl2l3')
-algorithms.append('ak5pfl1offl2l3')
-algorithms.append('ak7pfl1offl2l3')
-algorithms.append('ak5pfchsl1offl2l3')
-algorithms.append('ak7pfchsl1offl2l3')
+#algorithms.append('ak5pfl1offl2l3')
+#algorithms.append('ak7pfl1offl2l3')
+#algorithms.append('ak5pfchsl1offl2l3')
+#algorithms.append('ak7pfchsl1offl2l3')
 #algorithms.append('ak5pfHLTl1offl2l3')
 #algorithms.append('ak5pfchsHLTl1offl2l3')
-algorithms.append('ak5jptl1offl2l3')
-algorithms.append('ak7jptl1offl2l3')
+#algorithms.append('ak5jptl1l2l3')
+#algorithms.append('ak7jptl1l2l3')
 
 
 
@@ -189,16 +176,14 @@ doJetReco = True
 
 for algorithm in algorithms:
     if (algorithm.find('HLT') > 0) :
-        process.load("Configuration.StandardSequences.Geometry_cff")
-        process.load("Configuration.StandardSequences.MagneticField_cff")
         addAlgorithm(process,algorithm,Defaults,False)
     else:
         addAlgorithm(process,algorithm,Defaults,doJetReco)
 
 process.ak5CaloJets.jetPtMin = 1.0
 process.ak5PFJets.jetPtMin = 1.0
-process.ak7CaloJets.jetPtMin = 1.0
-process.ak7PFJets.jetPtMin = 1.0
+#process.ak7CaloJets.jetPtMin = 1.0
+#process.ak7PFJets.jetPtMin = 1.0
 
 
 #!

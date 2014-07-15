@@ -14,7 +14,6 @@
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
-#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 
 #include "TROOT.h"
 #include "TSystem.h"
@@ -34,7 +33,6 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TProfile3D.h"
-#include "TBenchmark.h"
 
 #include <iostream>
 #include <string>
@@ -60,8 +58,7 @@ string get_flavor_name(int pdgid);
 
 /// make the resolution vs. eta histogram
 //void makeResolutionHistogram(TH2F* RelRspVs_, TH1F* ResolutionVs_, bool mpv);
-void makeResolutionHistogram(TH3F* RespVs_, TH1F* ResolutionVs_, TString slice, bool mpv,
-                             int slice_min = 0, int slice_max = -1);
+void makeResolutionHistogram(TH3F* RespVs_, TH1F* ResolutionVs_, TString slice, bool mpv);
 
 /// add the error for one TProfile in quadrature with the value of another TProfile
 void addErrorQuadrature(TProfile* hist, TProfile* ehist);
@@ -131,17 +128,11 @@ int main(int argc,char**argv)
    int             totallow          = cl.getValue<int>          ("totallow",              0);
    int             totalhigh         = cl.getValue<int>          ("totalhigh",          1000);
    TString         weightfilename    = cl.getValue<TString>      ("weightfilename",       "");
-   TString         MCPUReWeighting   = cl.getValue<TString>      ("MCPUReWeighting",      "");
-   TString         DataPUReWeighting = cl.getValue<TString>      ("DataPUReWeighting",    "");
    bool            mpv               = cl.getValue<bool>         ("mpv",               false);
    TString         readRespVsPileup  = cl.getValue<TString>      ("readRespVsPileup",     "");
 
    if (!cl.check()) return 0;
    cl.print();
-
-   TBenchmark* m_benchmark = new TBenchmark();
-   m_benchmark->Reset();
-   m_benchmark->Start("event");
 
    //
    // Some useful quantities
@@ -173,10 +164,6 @@ int main(int argc,char**argv)
       if (weightHist==0) {cout<<"weightHist named \"we\" was not in file ff.root"<<endl; return 0;}
       weightHist->Scale(1./weightHist->Integral(1,weightHist->FindBin(3)));
    }
-    edm::LumiReWeighting LumiWeights_;
-    if(!MCPUReWeighting.IsNull() && !DataPUReWeighting.IsNull()) {
-       LumiWeights_ = edm::LumiReWeighting(string(MCPUReWeighting),string(DataPUReWeighting),"pileup","pileup_jt400");
-    }
 
    //
    // Loop over the algorithms
@@ -204,8 +191,7 @@ int main(int argc,char**argv)
       float refdphijt[100];
       int   refpdgid[100];
       vector<int>* npus = new vector<int>;
-      vector<float>* tnpus = new vector<float>;
-      vector<float>* sumpt_lowpt = new vector<float>;
+      vector<Float_t>* sumpt_lowpt = new vector<Float_t>;
       float rho(0.0);
       float rho_hlt(0.0);
       Long64_t npv(0);
@@ -219,7 +205,7 @@ int main(int argc,char**argv)
       TH3F *ScaleVsEtaVsPt;
       TProfile *RelRspVsSumPt;
       TH1F *SumPtDistributions[NPileup/2];
-      TH1F *ResolutionVsEta[NPtBins];
+      TH1F *ResolutionVsEta;
       TH1F *ResolutionVsPt;
       TH2D *EtaVsPt;
       TH1F *RefEtaDistribution;
@@ -235,7 +221,6 @@ int main(int argc,char**argv)
       TH1F *RelContributions[NPtBins];
       TProfile* rhoVsRhoHLT;
       TProfile* npvVsRhoHLT;
-      TH1F *TPUDistribution;
       TProfile *DPtVsNPU[3];
       TProfile *DPtVsPtGen[3];
       TProfile *RespRatioVsPtGen[3];
@@ -315,7 +300,6 @@ int main(int argc,char**argv)
       tree->SetBranchAddress("jteta",       jteta);
       tree->SetBranchAddress("jtphi",       jtphi);
       tree->SetBranchAddress("npus",        &npus);
-      tree->SetBranchAddress("tnpus",       &tnpus);
       tree->SetBranchAddress("sumpt_lowpt", &sumpt_lowpt);
       tree->SetBranchAddress("refdrjt",     refdrjt);
       if (doflavor) tree->SetBranchAddress("refpdgid",refpdgid);
@@ -343,6 +327,8 @@ int main(int argc,char**argv)
       RespVsEtaVsPt->Sumw2();
       RelRspVsSumPt = new TProfile("RelRspVsSumPt","RelRspVsSumPt",NPtBins,vpt);
       RelRspVsSumPt->Sumw2();
+      ResolutionVsEta = new TH1F("ResolutionVsEta","ResolutionVsEta",NETA,veta);
+      ResolutionVsEta->Sumw2();
       ResolutionVsPt = new TH1F("ResolutionVsPt","ResolutionVsPt",NPtBins,vpt);
       ResolutionVsPt->Sumw2();
       iEtaDistribution  = new TH1F("iEtaDistribution"   ,"iEtaDistribution",NETA,veta);
@@ -372,9 +358,6 @@ int main(int argc,char**argv)
          RespVsEta[i] = new TH2F(name,name,NETA,veta,NRespBins,RespLow,RespHigh);
          sprintf(name,"RelContributions_RefPt%sto%s",Pt[i],Pt[i+1]);
          RelContributions[i] = new TH1F(name,name,1999,1,2000);
-         sprintf(name,"ResolutionVsEta_RefPt%sto%s",Pt[i],Pt[i+1]);
-         ResolutionVsEta[i] = new TH1F(name,name,NETA,veta);
-         ResolutionVsEta[i]->Sumw2();
       }//for(int i=0;i<NPtBins;i++)
       if(readRespVsPileup.IsNull())
       {
@@ -455,7 +438,6 @@ int main(int argc,char**argv)
          Error2ForPtGen[i] = new TProfile(name,name,NPtBins,vpt);
          //Error2ForPtGen[i]->SetDirectory(0);
       }//for(int i=0; i<3; i++)
-      TPUDistribution = new TH1F("TPUDistribution","TPUDistribution",1000,0,100);
 
       //
       // fill histograms
@@ -518,10 +500,6 @@ int main(int argc,char**argv)
 
             if(weightHist!=0) weight = weightHist->GetBinContent(weightHist->FindBin(log10(ptgen)));
             else weight = 1;
-            if(!MCPUReWeighting.IsNull() && !DataPUReWeighting.IsNull()) {
-               double LumiWeight = LumiWeights_.weight((*tnpus)[1]);
-               weight *= LumiWeight;
-            }
 
             if (fabs(eta)<=1.3)
             {
@@ -536,19 +514,18 @@ int main(int argc,char**argv)
                RespVsPt_Fwd->Fill(ptgen,relrsp,weight); 
             }
               
-            if(HigherDist->FindBin(scale*pt) < HigherDist->FindBin(ptgen)) HigherDist->Fill(scale*pt,weight);
-            if(MiddleDist->FindBin(scale*pt) == MiddleDist->FindBin(ptgen)) MiddleDist->Fill(scale*pt,weight);
-            if(LowerDist->FindBin(scale*pt) > LowerDist->FindBin(ptgen)) LowerDist->Fill(scale*pt,weight);
-            RespVsEtaVsPt->Fill(ptgen,eta,relrsp,weight);
-            EtaVsPt->Fill(eta, log10(pt*scale),weight);
-            TPUDistribution->Fill((*tnpus)[1],weight);
+            if(HigherDist->FindBin(scale*pt) < HigherDist->FindBin(ptgen)) HigherDist->Fill(scale*pt);
+            if(MiddleDist->FindBin(scale*pt) == MiddleDist->FindBin(ptgen)) MiddleDist->Fill(scale*pt);
+            if(LowerDist->FindBin(scale*pt) > LowerDist->FindBin(ptgen)) LowerDist->Fill(scale*pt);
+            RespVsEtaVsPt->Fill(ptgen,eta,relrsp);
+            EtaVsPt->Fill(eta, log10(pt*scale));
 
             j = getBin(ptgen,vpt,NPtBins);
             k = getBin(eta,veta,NETA);
             if (j<NPtBins && j>=0 && k<NETA && k>=0)
             {
-               RespVsEta[j]->Fill(eta,relrsp,weight);
-               RelContributions[j]->Fill(scale*pt,weight);
+               RespVsEta[j]->Fill(eta,relrsp);
+               RelContributions[j]->Fill(scale*pt);
                if(readRespVsPileup.IsNull())
                { 
                   coord[0] = ptgen;
@@ -697,9 +674,7 @@ int main(int argc,char**argv)
       //
       // make histograms that rely on other, completely filled, histograms
       //
-      for (int i=1; i<=NPtBins; i++) {
-         makeResolutionHistogram(RespVsEtaVsPt,ResolutionVsEta[i],"y",mpv,i,i);
-      }
+      makeResolutionHistogram(RespVsEtaVsPt,ResolutionVsEta,"y",mpv);
       makeResolutionHistogram(RespVsEtaVsPt,ResolutionVsPt,"x",mpv);
       /*if(!readRespVsPileup.IsNull()) {
         for(int i=0; i<3; i++) {
@@ -741,13 +716,6 @@ int main(int argc,char**argv)
       outf->Close();
       cout << "DONE" << endl;
    }//for(unsigned int a=0; a<algs.size(); a++)
-
-   m_benchmark->Stop("event"); 
-   cout << "jet_correction_analyzer_x" << endl << "\tCPU time = " << m_benchmark->GetCpuTime("event") << " s" << endl
-        << "\tReal time = " << m_benchmark->GetRealTime("event") << " s" << endl;
-   delete m_benchmark;
-
-   return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -835,22 +803,12 @@ string getAlias(TString s)
       return "AK5JPT";
    else if (s=="ak5jptl1")
       return "AK5JPTl1";
-   else if (s=="ak5jptl1off")
-      return "AK5JPTl1off";
    else if (s=="ak5jptl1l2l3")
       return "AK5JPTl1";
-   else if (s=="ak5jptl1offl2l3")
-      return "AK5JPTl1off";
    else if (s=="ak7jpt")
       return "AK7JPT";
    else if (s=="ak7jptl1")
       return "AK7JPTl1";
-   else if (s=="ak7jptl1off")
-      return "AK7JPTl1off";
-   else if (s=="ak7jptl1l2l3")
-      return "AK7JPTl1";
-   else if (s=="ak7jptl1offl2l3")
-      return "AK7JPTl1off";
    else if (s=="sc5calo")
       return "SC5Calo";
    else if (s=="sc5pf")
@@ -889,7 +847,7 @@ string get_flavor_name(int pdgid)
 }
 
 //______________________________________________________________________________
-void makeResolutionHistogram(TH3F* RespVs_, TH1F* ResolutionVs_, TString slice, bool mpv, int slice_min, int slice_max)
+void makeResolutionHistogram(TH3F* RespVs_, TH1F* ResolutionVs_, TString slice, bool mpv)
 {
    int bins = 0;
    if(slice.CompareTo("y")==0) bins = RespVs_->GetNbinsY();
@@ -912,9 +870,9 @@ void makeResolutionHistogram(TH3F* RespVs_, TH1F* ResolutionVs_, TString slice, 
 
       gErrorIgnoreLevel = kError;
       if(slice.CompareTo("y")==0)
-         h = RespVs_->ProjectionZ("_pz",slice_min,slice_max,i,i);
+         h = RespVs_->ProjectionZ("_pz",0,-1,i,i);
       else if(slice.CompareTo("x")==0)
-         h = RespVs_->ProjectionZ("_pz",i,i,slice_min,slice_max);
+         h = RespVs_->ProjectionZ("_pz",i,i,0,-1);
       gErrorIgnoreLevel = oldLevel;
 
       if(mpv)

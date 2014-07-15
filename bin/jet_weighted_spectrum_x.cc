@@ -43,9 +43,9 @@ int main(int argc,char**argv)
   if (!cl.parse(argc,argv)) return 0;
   
   vector<string> inputs    = cl.getVector<string>("inputs");
-  string         datapath  = cl.getValue <string>("datapath",               "");
-  string         algorithm = cl.getValue <string>("algorithm",       "ak5calo");
-  string         selection = cl.getValue <string>("selection",             "1");
+  string         datapath  = cl.getValue <string>("datapath",             "");
+  string         algorithm = cl.getValue <string>("algorithm",       "ak3PFJetAnalyzer");
+  string         selection = cl.getValue <string>("selection",        "pthat<");
   string         variable  = cl.getValue <string>("variable",          "refpt");
   string         xtitle    = cl.getValue <string>("xtitle","p_{T}^{GEN} [GeV]");
   int            nbinsx    = cl.getValue <int>   ("nbinsx",               1000);
@@ -80,9 +80,13 @@ int main(int argc,char**argv)
   for (unsigned i=0;i<inputs.size();i++) {
     size_t pos      = inputs[i].find(":");
     string sample   = inputs[i].substr(0,pos);
+    size_t pos1     = inputs[i].find("::");
+    string sample1  = inputs[i].substr(0,pos);
     string filename = sample + ".root";
     float  weight   = 1.0;
+    float maxpthat  = 1.0;
     if (pos!=string::npos){stringstream ss;ss<<inputs[i].substr(pos+1);ss>>weight;}
+    if (pos1!=string::npos){stringstream ss1;ss1<<inputs[i].substr(pos1+2);ss1>>maxpthat;}
     
     TFile* file = new TFile((datapath+"/"+filename).c_str(),"READ");
     if (!file->IsOpen()) { cout<<"Can't open file "<<filename<<endl; continue; }
@@ -92,8 +96,10 @@ int main(int argc,char**argv)
     
     TTree* tree = (TTree*)dir->Get("t");
     if (0==tree) {cout<<"No tree 't' in dir "<<algorithm<<endl; continue; }
-    
-    cout<<"filename="<<filename<<", "<<tree->GetEntries()<<" events, xsec="<<weight
+    float pthat;
+    tree->SetBranchAddress("pthat",&pthat);    
+
+    cout<<"filename="<<filename<<", events="<<tree->GetEntries()<<", xsec="<<weight<<", maxpthat="<<maxpthat
 	<<endl;
     
     string htitle = ";"+xtitle;
@@ -101,7 +107,8 @@ int main(int argc,char**argv)
     TH1F* hW = new TH1F("hW",htitle.c_str(),nbinsx,xmin,xmax);
     
     weight /= tree->GetEntries();
-    stringstream wsel; wsel<<weight<<"*("<<selection<<")";
+    stringstream wsel; wsel<<weight<<"*("<<selection.c_str()<<maxpthat<<")";
+
 
     tree->Project("h", variable.c_str());
     tree->Project("hW",variable.c_str(),wsel.str().c_str());

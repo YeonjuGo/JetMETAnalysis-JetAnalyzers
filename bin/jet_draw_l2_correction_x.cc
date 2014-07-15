@@ -93,6 +93,7 @@ int main(int argc,char**argv)
   vector<TGraphErrors*> graphs;
   TLegend* leg = new TLegend(0.65,0.6,1.0,0.8);
   int overviewList[12] = {0,6,11,18,29,40,41,52,63,70,75,81};
+  //int overviewList[12]   = {1,5,10,12,16,19,,26,30,31,36};
 
   if(sameCanvas) cans.push_back(new TCanvas("can","can",1200,800));
   TCanvas *ove = new TCanvas("can_overview","can_overview",1200,800);

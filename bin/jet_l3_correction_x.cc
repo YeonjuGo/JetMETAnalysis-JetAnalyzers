@@ -21,7 +21,7 @@
 #include <TGraphErrors.h>
 #include <TCanvas.h>
 #include <TLatex.h>
-
+#include <Math/MinimizerOptions.h>
 
 #include <iostream>
 #include <iomanip>
@@ -85,6 +85,8 @@ int main(int argc,char**argv)
   set_root_style();
 
   
+  ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(10000);
+  
   //
   // open output file
   //
@@ -114,7 +116,7 @@ int main(int argc,char**argv)
     TDirectoryFile* idir = (TDirectoryFile*)dirKey->ReadObj();
     string alg(idir->GetName()); if (!contains(algs,alg)) continue;
     
-    cout<<alg<<" ... "<<flush;
+    //cout<<alg<<" ... "<<flush;
   
     TDirectoryFile* odir = (TDirectoryFile*)ofile->mkdir(alg.c_str());
     odir->cd();
@@ -138,9 +140,12 @@ int main(int argc,char**argv)
     hl_relrsp.begin_loop();
     while ((hrelrsp=hl_relrsp.next_object(indices))) {
       if (hrelrsp->Integral()==0) continue;
+
+      std::string histname(hrelrsp->GetName());
       
       TF1*  frelrsp = (TF1*)hrelrsp->GetListOfFunctions()->Last();
-      //std::cout << "hrelrspName = " << hrelrsp->GetName() << ": frelrsp = " << frelrsp << std::endl;
+      //std::cout << "hrelrspName = " << hrelrsp->GetName() << ": frelrsp = " << frelrsp->GetName() << std::endl;
+
       TH1F* hrefpt  = hl_refpt.object(indices);
       TH1F* hjetpt  = hl_jetpt.object(indices);
 
@@ -154,23 +159,20 @@ int main(int argc,char**argv)
 
       double peak;
       double epeak;
-      if(tpeak==1)
-        {
-          peak    =(frelrsp==0)?hrelrsp->GetMean():frelrsp->GetParameter(1);
-          epeak   =(frelrsp==0)?hrelrsp->GetMeanError():frelrsp->GetParError(1);
-        }
-      else if(tpeak==2)
-        {
-          peak    =(frelrsp==0)?hrelrsp->GetMean():((frelrsp->GetParameter(1)+hrelrsp->GetMean())*0.5);
-          epeak   =(frelrsp==0)?hrelrsp->GetMeanError():0.5*sqrt(pow(hrelrsp->GetMeanError(),2)+
-                                                                 pow(frelrsp->GetParError(1),2));
-        }
-      else
-        {
-          peak    =hrelrsp->GetMean();
-          epeak   =hrelrsp->GetMeanError();
-        }
-      
+      if(tpeak==1){
+	peak    =(frelrsp==0)?hrelrsp->GetMean():frelrsp->GetParameter(1);
+	epeak   =(frelrsp==0)?hrelrsp->GetMeanError():frelrsp->GetParError(1);
+      }
+      else if(tpeak==2){
+	peak    =(frelrsp==0)?hrelrsp->GetMean():((frelrsp->GetParameter(1)+hrelrsp->GetMean())*0.5);
+	epeak   =(frelrsp==0)?hrelrsp->GetMeanError():0.5*sqrt(pow(hrelrsp->GetMeanError(),2)+
+							       pow(frelrsp->GetParError(1),2));
+      }
+      else{
+	peak    =hrelrsp->GetMean();
+	epeak   =hrelrsp->GetMeanError();
+      }
+
       double rsp     =peak;
       double ersp    =epeak;
       double cor     =1.0/rsp;
@@ -191,22 +193,40 @@ int main(int argc,char**argv)
     tex.SetTextAlign(12);
     tex.SetTextFont(22);
     tex.SetTextSize(0.06);
-    
+
+    cout<<endl; 
+    cout<<endl; 
+    cout<<"################# " <<endl;
+    cout<< " !!!!!!! Relative Response Started ..... : " << alg.c_str() << endl; 
+    cout<<"################# " <<endl;
 
     // response
     TF1* fitrsp;
-    if (alg.find("pf")!=string::npos) {
-      fitrsp = new TF1("fitrsp","[0]-[1]/(pow(log10(x),2)+[2])-[3]*exp((-[4]*(log10(x)-[5])*(log10(x)-[5]))+([6]*(log10(x)-[5])))",
-			  1.0,grsp->GetX()[grsp->GetN()-1]);
-      fitrsp->SetParameter(0,0.96);
+    if (alg.find("PF")!=string::npos) {
+      //cout<<"##### doing response  pf fits"<<endl;
+      fitrsp = new TF1("fitrsp","[0]-[1]/(pow(log10(x)-[2],2)+[2])-[3]*exp((-[4]*(log10(x)-[5])*(log10(x)-[5]))+([6]*(log10(x)-[5])))",
+		       1.0,grsp->GetX()[grsp->GetN()-1]);
+
+      fitrsp->SetParameter(0,0.98);
       fitrsp->SetParameter(1,0.033);
-      fitrsp->SetParameter(2,-0.7);
-      fitrsp->SetParameter(3,0.02);
-      fitrsp->SetParameter(4,1.02);
-      fitrsp->SetParameter(5,2.7);
-      fitrsp->SetParameter(6,0.016);
+      fitrsp->SetParameter(2,-0.70);
+      fitrsp->SetParameter(3,0.020);
+      fitrsp->SetParameter(4,1.020);
+      fitrsp->SetParameter(5,2.10);
+      fitrsp->SetParameter(6,0.013);
+
+      if(alg.find("Pu")!=string::npos){
+	fitrsp->SetParameter(0,0.98);
+	fitrsp->SetParameter(1,0.044);
+	fitrsp->SetParameter(2,-0.70);
+	fitrsp->SetParameter(3,0.020);
+	fitrsp->SetParameter(4,1.020);
+	fitrsp->SetParameter(5,2.10);
+	fitrsp->SetParameter(6,0.025);
+      }
     }
     else if (alg.find("trk")!=string::npos) {
+      //cout<<"doing response  trk fits"<<endl;
       fitrsp = new TF1("fitrsp","[0]-[1]*pow(x/500.0,[2])",
 		       1.0,grsp->GetX()[grsp->GetN()-1]);
       fitrsp->SetParameter(0,1.0);
@@ -214,6 +234,7 @@ int main(int argc,char**argv)
       fitrsp->SetParameter(2,1.0);
     }
     else if ((int)alg.find("jpt")>0) {
+      //cout<<"doing response  jpt fits"<<endl;
       fitrsp = new TF1("fitrsp","[0]+[1]*TMath::Erf([2]*(log10(x)-[3]))+[4]*exp([5]*log10(x))",
                        1.0,grsp->GetX()[grsp->GetN()-1]);
       fitrsp->SetParameter(0,1.0);
@@ -224,6 +245,8 @@ int main(int argc,char**argv)
       fitrsp->SetParameter(5,1.0);
     }
     else {
+      //original fitting used
+      //cout<<"####### doing Calo fits " <<endl;
       fitrsp = new TF1("fitrsp","[0]-[1]/(pow(log10(x),[2])+[3])+[4]/x",
 		       1.0,grsp->GetX()[grsp->GetN()-1]);
       fitrsp->SetParameter(0,1.0);
@@ -231,11 +254,21 @@ int main(int argc,char**argv)
       fitrsp->SetParameter(2,1.0);
       fitrsp->SetParameter(3,1.0);
       fitrsp->SetParameter(4,1.0);
-    }
+   }
     fitrsp->SetLineWidth(2);
-    grsp->Fit(fitrsp,"QR");
-    
-    string   cname_rsp = string(grsp->GetName())+"_"+alg;
+    //grsp->Fit(fitrsp,"QR");
+    //grsp->Fit(fitrsp,"R","",10,600);
+    grsp->Fit(fitrsp,"R");
+    //if(alg.find("Pu")!=string::npos)grsp->Fit(fitrsp,"R","",27,grsp->GetX()[grsp->GetN()-1]);
+    //else grsp->Fit(fitrsp,"R");
+
+    cout<<"################# " <<endl;
+    cout<< " Relative Response completed .. going for Fit correction : " << alg.c_str() << endl; 
+    cout<<"################# " <<endl;
+    cout<<endl; 
+    cout<<endl; 
+
+    string   cname_rsp = string(grsp->GetName())+"_"+era+"_"+alg;
     TCanvas* crsp      = new TCanvas(cname_rsp.c_str(),cname_rsp.c_str(),0,0,700,600);
     crsp->cd();
     gPad->SetLeftMargin(0.2);
@@ -260,32 +293,57 @@ int main(int argc,char**argv)
       crsp->Print((string(crsp->GetName())+"."+formats[iformat]).c_str());
     
     
+
+    cout<<endl; 
+    cout<<endl; 
+    cout<<"################# " <<endl;
+    cout<< " !!!!!!! L3 Correction Factors Started ..... : " << alg.c_str() << endl; 
+    cout<<"################# " <<endl;
+
+
     // correction
     string fitcor_as_str;
+
     
-    if (alg.find("pf")!=string::npos) fitcor_as_str = "[0]+[1]/(pow(log10(x),2)+[2])+[3]*exp((-[4]*(log10(x)-[5])*(log10(x)-[5]))+([6]*(log10(x)-[5])))";
+    if (alg.find("PF")!=string::npos) fitcor_as_str = "[0]+[1]/(pow(log10(x)-[2],2)+[2])+[3]*exp((-[4]*(log10(x)-[5])*(log10(x)-[5]))+([6]*(log10(x)-[5])))";
     else if (alg.find("trk")!=string::npos) fitcor_as_str = "[0]+[1]*pow(x/500.0,[2])";
     else if ((int)alg.find("jpt")>0) fitcor_as_str = "[0]+[1]*TMath::Erf([2]*(log10(x)-[3]))+[4]*exp([5]*log10(x))";
-    else                         fitcor_as_str = "[0]+[1]/(pow(log10(x),[2])+[3])-[4]/x";
-    
-    TF1* fitcor = new TF1("fitcor",fitcor_as_str.c_str(),
-			  2.0,gcor->GetX()[gcor->GetN()-1]);
-    
-    if (alg.find("pf")!=string::npos) {
-      fitcor->SetParameter(0,1.04);
-      fitcor->SetParameter(1,.033);
-      fitcor->SetParameter(2,-0.7);
-      fitcor->SetParameter(3,0.02); 
-      fitcor->SetParameter(4,1.02);
-      fitcor->SetParameter(5,2.7);
-      fitrsp->SetParameter(6,0.016);
+    else fitcor_as_str = "[0]+[1]/(pow(log10(x),[2])+[3])-[4]/x";
+
+    TF1 *fitcor=0;
+    if (alg.find("PF")!=string::npos) {
+      fitcor = new TF1("fitcor",fitcor_as_str.c_str(),
+		       1.0,gcor->GetX()[gcor->GetN()-1]);
+
+      fitcor->SetParameter(0,1.02);
+      fitcor->SetParameter(1,0.033);
+      fitcor->SetParameter(2,-0.70);
+      fitcor->SetParameter(3,0.020);
+      fitcor->SetParameter(4,1.020);
+      fitcor->SetParameter(5,2.10);
+      fitcor->SetParameter(6,0.013);
+
+
+      if(alg.find("Pu")!=string::npos) {
+	fitcor->SetParameter(0,1.04);
+	fitcor->SetParameter(1,0.044);
+	fitcor->SetParameter(2,-0.7);
+	fitcor->SetParameter(3,0.02);
+	fitcor->SetParameter(4,1.02);
+	fitcor->SetParameter(5,2.10);
+	fitcor->SetParameter(6,0.025);
+      }
     }
     else if (alg.find("trk")!=string::npos) {
+      fitcor = new TF1("fitcor",fitcor_as_str.c_str(),
+		       1.0,gcor->GetX()[gcor->GetN()-1]);
       fitcor->SetParameter(0,1.7);
       fitcor->SetParameter(1,0.2);
       fitcor->SetParameter(2,0.3);
     }
     else if ((int)alg.find("jpt")>0) {
+      fitcor = new TF1("fitcor",fitcor_as_str.c_str(),
+		       1.0,gcor->GetX()[gcor->GetN()-1]);
       fitcor->SetParameter(0,1.0);
       fitcor->SetParameter(1,1.0);
       fitcor->SetParameter(2,1.0);
@@ -294,16 +352,29 @@ int main(int argc,char**argv)
       fitcor->SetParameter(5,1.0);
     }
     else {
+      fitcor = new TF1("fitcor",fitcor_as_str.c_str(),
+		       1.0,gcor->GetX()[gcor->GetN()-1]);
       fitcor->SetParameter(0,1.0);
-      fitcor->SetParameter(1,7.0);
-      fitcor->SetParameter(2,4.0);
-      fitcor->SetParameter(3,4.0);
-      fitcor->SetParameter(4,1.0);       
+      fitcor->SetParameter(1,1.0);
+      fitcor->SetParameter(2,1.0);
+      fitcor->SetParameter(3,1.0);
+      fitcor->SetParameter(4,1.0);
     }
     fitcor->SetLineWidth(2);
-    gcor->Fit(fitcor,"QR");
-    
-    string   cname_cor = string(gcor->GetName())+"_"+alg;
+    //gcor->Fit(fitcor,"QR");
+    gcor->Fit(fitcor,"R");
+    //if(alg.find("Pu")!=string::npos)gcor->Fit(fitcor,"R","",27,gcor->GetX()[grsp->GetN()-1]);
+    //gcor->Fit(fitcor,"R");
+    //gcor->Fit(fitcor,"R","",10,600);
+    //gcor->Fit(fitcor,"R","",20,gcor->GetX()[gcor->GetN()-1]);
+    //cout<<"               XXXXXXXXXXXXXXX          alg is "<<alg<<endl; 
+
+    cout<<endl; 
+    cout<<"################# " <<endl;
+    cout<< " !!!!!!! L3 Correction Factors done ..... : " << alg.c_str() << endl; 
+    cout<<"################# " <<endl;
+
+    string   cname_cor = string(gcor->GetName())+"_"+era+"_"+alg;
     TCanvas* ccor      = new TCanvas(cname_cor.c_str(),cname_cor.c_str(),715,0,700,600);
     ccor->cd();
     gPad->SetLeftMargin(0.2);
@@ -327,17 +398,28 @@ int main(int argc,char**argv)
     ofstream fout(txtfilename.c_str());
     fout.setf(ios::left);
     fout<<"{1 JetEta 1 JetPt "<<fitcor_as_str<<" Correction L3Absolute}"<<endl;
-    if (alg.find("pf")!=string::npos) {
-      fout<<setw(12)<<-5.191                       // eta_min
-          <<setw(12)<<+5.191                       // eta_max
+    if (alg.find("PF")!=string::npos) {
+      fout<<setw(12)<<-3.000                       // eta_min
+          <<setw(12)<<+3.000                       // eta_max
           <<setw(12)<<fitcor->GetNpar()+2          // number of parameters + 2
-          <<setw(12)<<4.0                          // minimum pT
-          <<setw(12)<<5000.0;                      // maximum pT
+	  <<setw(12)<<4.0                         // minimum pT
+          <<setw(12)<<1000.0;                      // maximum pT
       for(int p=0; p<fitcor->GetNpar(); p++)
         {
           fout<<setw(12)<<fitcor->GetParameter(p); // p0-p6
         }
     }
+//     else if (alg.find("PF")!=string::npos) {
+//       fout<<setw(12)<<-3.000                       // eta_min
+//           <<setw(12)<<+3.000                       // eta_max
+//           <<setw(12)<<fitcor->GetNpar()+2          // number of parameters + 2
+//           <<setw(12)<<4.0                          // minimum pT
+//           <<setw(12)<<1000.0;                      // maximum pT
+//       for(int p=0; p<fitcor->GetNpar(); p++)
+//         {
+//           fout<<setw(12)<<fitcor->GetParameter(p); // p0-p6
+//         }
+//    }
     else if (alg.find("trk")!=string::npos) {
       fout<<setw(12)<<-2.5                         // eta_min
           <<setw(12)<<+2.5                         // eta_max
@@ -361,11 +443,11 @@ int main(int argc,char**argv)
         }
     }
     else {
-      fout<<setw(12)<<-5.191                  // eta_min
-          <<setw(12)<<+5.191                  // eta_max
+      fout<<setw(12)<<-3.000                  // eta_min
+          <<setw(12)<<+3.000                  // eta_max
           <<setw(12)<<fitcor->GetNpar()+2     // number of parameters + 2
           <<setw(12)<<4.0                     // minimum pT
-          <<setw(12)<<5000.0;                 // maximum pT
+          <<setw(12)<<1000.0;                 // maximum pT
       for(int p=0; p<fitcor->GetNpar(); p++)
         {
           fout<<setw(12)<<fitcor->GetParameter(p); // p0-p4
@@ -422,11 +504,13 @@ string get_legend_title(const string& alg)
   else if (alg.find("ic")==0) { title = "ItCone, R=";     tmp = tmp.substr(2); }
   else if (alg.find("mc")==0) { title = "MidCone. R=";    tmp = tmp.substr(2); }
   else if (alg.find("ca")==0) { title = "Cam/Aachen, D="; tmp = tmp.substr(2); }
+  else if (alg.find("akPu")==0) { title = "Anti k_{T}, PU, D="; tmp = tmp.substr(4); }
+  else if (alg.find("akVs")==0) { title = "Anti k_{T}, VS, D="; tmp = tmp.substr(4); }
   else if (alg.find("ak")==0) { title = "Anti k_{T}, D="; tmp = tmp.substr(2); }
   else return alg;
   
-  string reco[9] = { "gen", "caloHLT", "calo", "pfHLT", "pfchsHLT", "pfchs", "pf", "trk", "jpt" };
-  string RECO[9] = { "(Gen)", "(Calo@HLT)", "(Calo)", "(PFlow@HLT)", "(PFlow+CHS@HLT)", "(PFlow+CHS)", "(PFlow)", "(Tracks)", "(JPT)" };
+  string reco[10] = { "gen", "CaloHLT", "Calo", "PFHLT", "PFchsHLT", "PFchs", "PF", "trk", "jpt", "Vs" };
+  string RECO[10] = { "(Gen)", "(Calo@HLT)", "(Calo)", "(PFlow@HLT)", "(PFlow+CHS@HLT)", "(PFlow+CHS)", "(PFlow)", "(Tracks)", "(JPT)", "(VornoiSub)" };
 
   string::size_type pos=string::npos; int ireco=-1;
   while (pos==string::npos&&ireco<8) { pos = tmp.find(reco[++ireco]); }
@@ -448,23 +532,33 @@ string get_algorithm_suffix(const string& alg)
   result += std::toupper(alg[0]);
   result += std::toupper(alg[1]);
   result += alg[2];
-  if      (alg.find("calol1off")  ==3) result += "Calol1off";
-  else if (alg.find("calol1")     ==3) result += "Calol1";
-  else if (alg.find("caloHLTl1")  ==3) result += "CaloHLTl1";
-  else if (alg.find("caloHLT")    ==3) result += "CaloHLT";
-  else if (alg.find("calo")       ==3) result += "Calo";
+  if      (alg.find("Calol1off")  ==3) result += "Calol1off";
+  else if (alg.find("Calol1")     ==3) result += "Calol1";
+  else if (alg.find("CaloHLTl1")  ==3) result += "CaloHLTl1";
+  else if (alg.find("CaloHLT")    ==3) result += "CaloHLT";
+  else if (alg.find("Calo")       ==3) result += "Calo";
+  else if (alg.find("Calo")       ==5) { 
+     result += alg[3];
+     result += alg[4];  
+     result += "Calo";
+   }
   else if (alg.find("jptl1")      ==3) result += "JPTl1";
   else if (alg.find("jpt")        ==3) result += "JPT";
-  else if (alg.find("pfchsHLTl1") ==3) result += "PFchsHLTl1";
-  else if (alg.find("pfchsHLT")   ==3) result += "PFchsHLT";
-  else if (alg.find("pfchsl1off") ==3) result += "PFchsl1off";
-  else if (alg.find("pfchsl1")    ==3) result += "PFchsl1";
-  else if (alg.find("pfchs")      ==3) result += "PFchs";
-  else if (alg.find("pfHLTl1")    ==3) result += "PFHLTl1";
-  else if (alg.find("pfHLT")      ==3) result += "PFHLT";
-  else if (alg.find("pfl1off")    ==3) result += "PFl1off";
-  else if (alg.find("pfl1")       ==3) result += "PFl1";
-  else if (alg.find("pf")         ==3) result += "PF";
+  else if (alg.find("PFchsHLTl1") ==3) result += "PFchsHLTl1";
+  else if (alg.find("PFchsHLT")   ==3) result += "PFchsHLT";
+  else if (alg.find("PFchsl1off") ==3) result += "PFchsl1off";
+  else if (alg.find("PFchsl1")    ==3) result += "PFchsl1";
+  else if (alg.find("PFchs")      ==3) result += "PFchs";
+  else if (alg.find("PFHLTl1")    ==3) result += "PFHLTl1";
+  else if (alg.find("PFHLT")      ==3) result += "PFHLT";
+  else if (alg.find("PFl1off")    ==3) result += "PFl1off";
+  else if (alg.find("PFl1")       ==3) result += "PFl1";
+  else if (alg.find("PF")         ==3) result += "PF";
+  else if (alg.find("PF")         ==5) {
+     result += alg[3];
+     result += alg[4];
+     result += "PF";
+  }
   else if (alg.find("trk")        ==3) result += "TRK";
   else if (alg.find("tau")        ==3) result += std::string(alg, 3);
   cout<<"get_algorithm_suffix: result = "<<result<<" from alg = "<<alg<<endl;

@@ -19,7 +19,6 @@
 
 
 #include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
-#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -34,7 +33,7 @@
 #include <string>
 #include <map>
 #include <cmath>
-#include <vector>
+
 
 using namespace std;
 
@@ -147,9 +146,7 @@ int main(int argc,char**argv)
   int            lateoothigh       = cl.getValue<int>    ("lateoothigh",        1000);
   int            totalootlow       = cl.getValue<int>    ("totalootlow",           0);
   int            totaloothigh      = cl.getValue<int>    ("totaloothigh",       1000);
-  TString        weightfile        = cl.getValue<TString>("weightfile",           "");
-  TString        MCPUReWeighting   = cl.getValue<TString>("MCPUReWeighting",      "");
-  TString        DataPUReWeighting = cl.getValue<TString>("DataPUReWeighting",    "");
+  TString         weightfile       = cl.getValue<TString>("weightfile",           "");
 
   if (!cl.check()) return 0;
   cl.print();
@@ -242,30 +239,26 @@ int main(int argc,char**argv)
           }
        }
     }
-    edm::LumiReWeighting LumiWeights_;
-    if(!MCPUReWeighting.IsNull() && !DataPUReWeighting.IsNull()) { 
-       LumiWeights_ = edm::LumiReWeighting(string(MCPUReWeighting),string(DataPUReWeighting),"pileup","pileup_jt400");
-    }
 
     //
     // setup the tree for reading
     //
-    unsigned char nref;
+    Int_t nref;
     float weight(1.0);
     float flavorWeight(1.0);
-    int   refpdgid[100];
-    float refpt[100];
-    float refeta[100];
-    float refphi[100];
+    int   refpdgid[1000];
+    float refpt[1000];
+    float refeta[1000];
+    float refphi[1000];
     //float refy[100];
-    float jtpt[100];
-    float jteta[100];
-    float jtphi[100];
-    float jty[100];
-    float refdrjt[100];
-    float refdphijt[100];
-    vector<int>* npus = new vector<int>;
-    vector<float>* tnpus = new vector<float>;
+    float jtpt[1000];
+    float jteta[1000];
+    float jtphi[1000];
+    float jty[1000];
+    float refdrjt[1000];
+    float refdphijt[1000];
+    int subid[1000];
+ //   vector<int>* npus = new vector<int>;
     
     tree->SetBranchAddress("nref",   &nref);
     if (doflavor) tree->SetBranchAddress("refpdgid",refpdgid);
@@ -277,8 +270,8 @@ int main(int argc,char**argv)
     tree->SetBranchAddress("jteta",   jteta);
     tree->SetBranchAddress("jtphi",   jtphi);
     tree->SetBranchAddress("jty",     jty);
-    tree->SetBranchAddress("npus",    &npus);
-    tree->SetBranchAddress("tnpus",   &tnpus);
+    tree->SetBranchAddress("subid",   subid);    
+ //   tree->SetBranchAddress("npus",    &npus);
     if (xsection>0.0) { weight = xsection/tree->GetEntries(); useweight = false; }
     if (useweight) {
       if (0==tree->GetBranch("weight"))
@@ -998,15 +991,18 @@ int main(int argc,char**argv)
         const Long64_t ientry = el->GetEntry(ievt);
         tree->GetEntry(ientry);
         if (nrefmax>0) nref = std::min((int)nref,nrefmax);
-        for (unsigned char iref=0;iref<nref;iref++) {
+        for (Int_t iref=0;iref<nref;iref++) {
+	  //for (Int_t iref=0;iref<2;iref++) {
    
           if (( dobalance&&refdphijt[iref]<dphimin)||
               (!dobalance&&refdrjt[iref]>drmax_alg)) continue;
         
-          if (jtpt[iref]<jtptmin) continue;
+          if (jtpt[iref]<jtptmin || subid[iref]!=0 || refdrjt[iref]>drmax_alg) continue;
 
-          if (!pileup_cut(itlow,ithigh,earlyootlow,earlyoothigh,lateootlow,lateoothigh,
-                             totalootlow,totaloothigh,npus)) continue;
+	  //if(iref>3)continue;
+
+	  //  if (!pileup_cut(itlow,ithigh,earlyootlow,earlyoothigh,lateootlow,lateoothigh,
+	  //                     totalootlow,totaloothigh,npus)) continue;
 
           float eta    =
             (binseta.size()&&binseta.front()>=0.)?std::abs(jteta[iref]):jteta[iref];
@@ -1023,7 +1019,6 @@ int main(int argc,char**argv)
           //
           // retrieve the correct weight
           //
-          if (!(xsection>0.0) && !useweight) weight = 1.0;
           if(!weightfile.IsNull())
           {
              if(!doflavor && log10(refpt[iref])<3)
@@ -1044,15 +1039,6 @@ int main(int argc,char**argv)
           }
           else
              flavorWeight = weight;
-          if(!MCPUReWeighting.IsNull() && !DataPUReWeighting.IsNull()) {
-             double LumiWeight = LumiWeights_.weight((*tnpus)[1]);
-             //if (ievt<10)
-             //   cout << "LumiWeight = " << LumiWeight << "\tweight (before) = "<< weight;
-             weight *= LumiWeight;
-             //if (ievt<10)
-             //   cout << "\tweight (after) = " << weight << endl;
-
-          }
 
           if (eta>=etabarrelmin&&eta<=etabarrelmax) {
             if (dorefpt) {
@@ -1575,38 +1561,39 @@ bool contains(const vector<string>& collection,const string& element)
 
 
 //______________________________________________________________________________
-bool it_pileup(int itlow, int ithigh, vector<int>* npus)
-{
-  if((*npus)[1]>=itlow && (*npus)[1]<=ithigh) return true;
-  return false;
-}
+ bool it_pileup(int itlow, int ithigh, vector<int>* npus)
+ {
+   if((*npus)[1]>=itlow && (*npus)[1]<=ithigh) return true;
+   return false;
+ }
 
 
 //______________________________________________________________________________
-bool oot_pileup(int earlyootlow, int earlyoothigh, int lateootlow, int lateoothigh,
-                vector<int>* npus)
-{
-  if((*npus)[0]>=earlyootlow && (*npus)[0]<=earlyoothigh && 
-     (*npus)[2]>=lateootlow && (*npus)[2]<=lateoothigh) return true;
-  return false;
-}
+ bool oot_pileup(int earlyootlow, int earlyoothigh, int lateootlow, int lateoothigh,
+                 vector<int>* npus)
+ {
+   if((*npus)[0]>=earlyootlow && (*npus)[0]<=earlyoothigh && 
+      (*npus)[2]>=lateootlow && (*npus)[2]<=lateoothigh) return true;
+   return false;
+ }
 
 
 //______________________________________________________________________________
-bool total_oot_pileup(int totalootlow, int totaloothigh, vector<int>* npus)
-{
-  if((*npus)[0]+(*npus)[2]>=totalootlow && (*npus)[0]+(*npus)[2]<=totaloothigh) return true;
-  return false;
-}
+ bool total_oot_pileup(int totalootlow, int totaloothigh, vector<int>* npus)
+ {
+   if((*npus)[0]+(*npus)[2]>=totalootlow && (*npus)[0]+(*npus)[2]<=totaloothigh) return true;
+   return false;
+ }
 
 
 //______________________________________________________________________________
-bool pileup_cut(int itlow, int ithigh, int earlyootlow, int earlyoothigh, 
-                int lateootlow, int lateoothigh, int totalootlow, int totaloothigh, 
-                vector<int>* npus)
-{
-  if(it_pileup(itlow,ithigh,npus) && 
-     total_oot_pileup(totalootlow,totaloothigh,npus) && 
-     oot_pileup(earlyootlow,earlyoothigh,lateootlow,lateoothigh,npus)) return true;
-  return false;
-}
+ bool pileup_cut(int itlow, int ithigh, int earlyootlow, int earlyoothigh, 
+                 int lateootlow, int lateoothigh, int totalootlow, int totaloothigh, 
+                 vector<int>* npus)
+ {
+   if(it_pileup(itlow,ithigh,npus) && 
+      total_oot_pileup(totalootlow,totaloothigh,npus) && 
+      oot_pileup(earlyootlow,earlyoothigh,lateootlow,lateoothigh,npus)) return true;
+   return false;
+ }
+
