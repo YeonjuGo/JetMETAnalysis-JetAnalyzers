@@ -83,14 +83,13 @@ const double phibins[] = {-3.141,-2.700,-2.100,-1.500,-0.900,-0.300,
 const int nphi = sizeof(phibins)/sizeof(double) - 1;
 
 const int kAlgos = 42;
-const char *calgo[kAlgos] = {"ak1PF","ak2PF","ak3PF","ak4PF","ak5PF","ak6PF","ak7PF","ak1Calo","ak2Calo","ak3Calo","ak4Calo","ak5Calo","ak6Calo","ak7Calo",
-			     "akPu1PF","akPu2PF","akPu3PF","akPu4PF","akPu5PF","akPu6PF","akPu7PF","akPu1Calo","akPu2Calo","akPu3Calo","akPu4Calo","akPu5Calo","akPu6Calo","akPu7Calo",
-			     "akVs1PF","akVs2PF","akVs3PF","akVs4PF","akVs5PF","akVs6PF","akVs7PF","akVs1Calo","akVs2Calo","akVs3Calo","akVs4Calo","akVs5Calo","akVs6Calo","akVs7Calo"
+const char *calgo[kAlgos] = {"ak2PF","ak3PF","ak4PF","ak5PF","ak2Calo","ak3Calo","ak4Calo","ak5Calo",
+			     "akPu2PF","akPu3PF","akPu4PF","akPu5PF","akPu2Calo","akPu3Calo","akPu4Calo","akPu5Calo",
+			     "akVs2PF","akVs3PF","akVs4PF","akVs5PF","akVs2Calo","akVs3Calo","akVs4Calo","akVs5Calo"
 };
-string corrFileName[kAlgos]= {"AK1PF","AK2PF","AK3PF","AK4PF","AK5PF","AK6PF","AK7PF","AK1Calo","AK2Calo","AK3Calo","AK4Calo","AK5Calo","AK6Calo","AK7Calo",
-			      //"AKPu1PF","AKPu2PF","AKPu3PF","AKPu4PF","AKPu5PF","AKPu6PF","AKPu7PF","AKPu1Calo","AKPu2Calo","AKPu3Calo","AKPu4Calo","AKPu5Calo","AKPu6Calo","AKPu7Calo",
-			      "AK1PF","AK2PF","AK3PF","AK4PF","AK5PF","AK6PF","AK7PF","AK1Calo","AK2Calo","AK3Calo","AK4Calo","AK5Calo","AK6Calo","AK7Calo",
-			      "AKVs1PF","AKVs2PF","AKVs3PF","AKVs4PF","AKVs5PF","AKVs6PF","AKVs7PF","AKVs1Calo","AKVs2Calo","AKVs3Calo","AKVs4Calo","AKVs5Calo","AKVs6Calo","AKVs7Calo"
+string corrFileName[kAlgos]= {"AK2PF","AK3PF","AK4PF","AK5PF","AK2Calo","AK3Calo","AK4Calo","AK5Calo",
+			      "AKPu2PF","AKPu3PF","AKPu4PF","AKPu5PF","AKPu2Calo","AKPu3Calo","AKPu4Calo","AKPu5Calo",
+			      "AKVs2PF","AKVs3PF","AKVs4PF","AKVs5PF","AKVs2Calo","AKVs3Calo","AKVs4Calo","AKVs5Calo"
 };
 
 //float kDelRCut=0.3;
@@ -113,13 +112,15 @@ int CalJec(const char *ksp="pp")
   std::string inname="";
   int knj = kAlgos;
 
-  inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_bacJEC_mergedpthatbins_Track8_Jet29_MC.root";
+  inname="gammajet_pp_bacJEC_mergedpthatbins_test_MC.root";
+  //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_bacJEC_mergedpthatbins_Track8_Jet29_MC.root";
   //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_official_mergedpthatbins_Track8_Jet28_MC.root";
 
   TFile *fin = new TFile(inname.c_str(),"r");
 
   std::string outname="";
   //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_official_Track8_Jet28_MC.root";
+  //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root";
   outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root";
 
   TFile *fout = new TFile(outname.c_str(),"RECREATE");
@@ -136,12 +137,14 @@ int CalJec(const char *ksp="pp")
 
   //! Before running check all the txt files are available
   for(int nj=0; nj<knj; nj++){
-    std::string L2Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L2Relative_"+corrFileName[nj]+".txt";
+    //std::string L2Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L2Relative_"+corrFileName[nj]+".txt";
+    std::string L2Name = "JEC_gammajet_HiWinter13_STARTHI53_LV1_5_3_20_L2Relative_"+corrFileName[nj]+".txt";
     if(!is_file(L2Name.c_str())){
       cout<<"**** ++++++  L2Name does not exists  "<<L2Name<<endl;
       return  2;
     }
-    std::string L3Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L3Absolute_"+corrFileName[nj]+".txt";
+    //std::string L3Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L3Absolute_"+corrFileName[nj]+".txt";
+    std::string L3Name = "JEC_gammajet_HiWinter13_STARTHI53_LV1_5_3_20_L3Absolute_"+corrFileName[nj]+".txt";
     if(!is_file(L3Name.c_str())){
       cout<<"**** ++++++  L3Name does not exists  "<<L3Name<<endl;
       return 3;
@@ -381,9 +384,11 @@ int CalJec(const char *ksp="pp")
     FactorizedJetCorrector *_JEC_HI = new FactorizedJetCorrector(vpar_HI);//JR
 
     //! Sample from which JEC was derived
-    L2Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L2Relative_"+corrFileName[nj]+".txt";
+    //L2Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L2Relative_"+corrFileName[nj]+".txt";
+    L2Name = "JEC_gammajet_HiWinter13_STARTHI53_LV1_5_3_20_L2Relative_"+corrFileName[nj]+".txt";
     cout<<"**** ++++++  L2Name "<<L2Name<<endl;
-    L3Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L3Absolute_"+corrFileName[nj]+".txt";
+    //L3Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L3Absolute_"+corrFileName[nj]+".txt";
+    L3Name = "JEC_gammajet_HiWinter13_STARTHI53_LV1_5_3_20_L3Absolute_"+corrFileName[nj]+".txt";
     cout<<"**** ++++++  L3Name "<<L3Name<<endl;
 
     //! Official pp sample JEC

@@ -42,8 +42,8 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
   const int ndir=42;
 
   string DirName[ndir]= {
-    "ak1CaloJetAnalyzer",
-    "ak1PFJetAnalyzer",
+//    "ak1CaloJetAnalyzer",
+//    "ak1PFJetAnalyzer",
     "ak2CaloJetAnalyzer",
     "ak2PFJetAnalyzer",
     "ak3CaloJetAnalyzer",
@@ -52,13 +52,13 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
     "ak4PFJetAnalyzer",
     "ak5CaloJetAnalyzer",
     "ak5PFJetAnalyzer",
-    "ak6CaloJetAnalyzer",
-    "ak6PFJetAnalyzer",
-    "ak7CaloJetAnalyzer",
-    "ak7PFJetAnalyzer",
-
-    "akPu1CaloJetAnalyzer",
-    "akPu1PFJetAnalyzer",
+//    "ak6CaloJetAnalyzer",
+//    "ak6PFJetAnalyzer",
+//    "ak7CaloJetAnalyzer",
+//    "ak7PFJetAnalyzer",
+//
+//    "akPu1CaloJetAnalyzer",
+//    "akPu1PFJetAnalyzer",
     "akPu2CaloJetAnalyzer",
     "akPu2PFJetAnalyzer",
     "akPu3CaloJetAnalyzer",
@@ -67,14 +67,14 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
     "akPu4PFJetAnalyzer",
     "akPu5CaloJetAnalyzer",
     "akPu5PFJetAnalyzer",
-    "akPu6CaloJetAnalyzer",
-    "akPu6PFJetAnalyzer",
-    "akPu7CaloJetAnalyzer",
-    "akPu7PFJetAnalyzer",
-
-
-    "akVs1CaloJetAnalyzer",
-    "akVs1PFJetAnalyzer",
+//    "akPu6CaloJetAnalyzer",
+//    "akPu6PFJetAnalyzer",
+//    "akPu7CaloJetAnalyzer",
+//    "akPu7PFJetAnalyzer",
+//
+//
+//    "akVs1CaloJetAnalyzer",
+//    "akVs1PFJetAnalyzer",
     "akVs2CaloJetAnalyzer",
     "akVs2PFJetAnalyzer",
     "akVs3CaloJetAnalyzer",
@@ -83,10 +83,10 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
     "akVs4PFJetAnalyzer",
     "akVs5CaloJetAnalyzer",
     "akVs5PFJetAnalyzer",
-    "akVs6CaloJetAnalyzer",
-    "akVs6PFJetAnalyzer",
-    "akVs7CaloJetAnalyzer",
-    "akVs7PFJetAnalyzer"
+//    "akVs6CaloJetAnalyzer",
+//    "akVs6PFJetAnalyzer",
+//    "akVs7CaloJetAnalyzer",
+//    "akVs7PFJetAnalyzer"
   };
 
   TFile *fout=new TFile(outfile,"RECREATE");

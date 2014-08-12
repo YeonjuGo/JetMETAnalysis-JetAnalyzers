@@ -1,14 +1,9 @@
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT15_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb15.root" 30 2.034e-01
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT30_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb30.root" 50 1.075e-02
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT50_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb50.root" 80 1.025e-03
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT80_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb80.root" 120 9.865e-05
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT120_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb120.root" 170 1.129e-05
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT170_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb170.root" 220 1.465e-06
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT220_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb220.root" 280 2.837e-07
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT280_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb280.root" 370 5.323e-08
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT370_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb370.root" 460 5.934e-09
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT460_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb460.root" 540 8.125e-10
-HI_weight "/mnt/hadoop/cms/store/user/belt/Validations53X/Track8_Jet29_cut1/QCDpT540_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_1GeVcut_badJEC_forest.root" "/net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb540.root" 9999 1.467e-10
+HI_weight.exe "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_MC_2760GeV/pp_MC_AllQCDPhotons_PtHat15_2760GeV.root" "test/pho_pp15.root" 30 2.034e-01
+HI_weight.exe "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_MC_2760GeV/pp_MC_AllQCDPhotons_PtHat30_2760GeV.root" "test/pho_pp30.root" 50 2.034e-01
+HI_weight.exe "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_MC_2760GeV/pp_MC_AllQCDPhotons_PtHat50_2760GeV.root" "test/pho_pp50.root" 80 2.034e-01
+HI_weight.exe "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_MC_2760GeV/pp_MC_AllQCDPhotons_PtHat80_2760GeV.root" "test/pho_pp80.root" 120 2.034e-01
+HI_weight.exe "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_MC_2760GeV/pp_MC_AllQCDPhotons_PtHat120_2760GeV.root" "test/pho_pp120.root" 170 2.034e-01
+HI_weight.exe "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_MC_2760GeV/pp_MC_AllQCDPhotons_PtHat170_2760GeV.root" "test/pho_pp170.root" 9999 2.034e-01
 
-list=`echo /net/hidsk0001/d00/scratch/pawan/combinedPtHat/pbpb2014/Track8_Jet29/test/pbpb*.root`
-hadd /net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_bacJEC_mergedpthatbins_Track8_Jet29_test_MC.root $list
+list=`echo ./test/pho_pp*.root`
+hadd gammajet_pp_bacJEC_mergedpthatbins_test_MC.root $list
