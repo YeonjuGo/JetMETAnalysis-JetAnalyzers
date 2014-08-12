@@ -21,6 +21,7 @@ public:
    void writeFile(TString filename, TString writeFlag = "RECREATE")
    {
       TFile* f = new TFile (filename,writeFlag);
+      if (!f->IsOpen()) return;
       for(unsigned int i=0; i<vec.size(); i++)
       {
          vec[i]->Write();
@@ -31,6 +32,7 @@ public:
    void readFile(TString filename)
    {
       TFile* f = new TFile (filename);
+      if (!f->IsOpen()) return;
       TList* list = (TList*)gDirectory->GetListOfKeys();
       TIter next(list);
       while (TObject* obj = next())

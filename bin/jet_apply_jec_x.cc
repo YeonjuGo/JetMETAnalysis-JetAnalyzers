@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
+#include "../../../JetMETAnalysis/JetUtilities/interface/CommandLine.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
-
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -446,7 +446,7 @@ string getAlias(TString s)
 //______________________________________________________________________________
 string getPostfix(vector<string> postfix, string alg, int level)
 {
-  for(unsigned int ipostfix; ipostfix<postfix.size(); ipostfix+=3)
+  for(unsigned int ipostfix=0; ipostfix<postfix.size(); ipostfix+=3)
     {
       TString tmp(postfix[ipostfix+1]);
       if(postfix[ipostfix].compare(alg)==0 && atoi(tmp.Data())==level)

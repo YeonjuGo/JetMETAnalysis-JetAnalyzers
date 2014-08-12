@@ -51,6 +51,7 @@ public:
    }
    void readFile(TString filename) {
       TFile* f = new TFile (filename);
+      if (!f->IsOpen()) return;
       TList* list = (TList*)gDirectory->GetListOfKeys();
       TIter next(list);
       while (TObject* obj = next())

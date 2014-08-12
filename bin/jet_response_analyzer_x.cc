@@ -138,14 +138,14 @@ int main(int argc,char**argv)
   float          jtptmin           = cl.getValue<float>  ("jtptmin",             1.0);
   vector<string> algs              = cl.getVector<string>("algs",                 "");
   vector<string> presel            = cl.getVector<string>("presel",               "");
-  int            itlow             = cl.getValue<int>    ("itlow",                 0);
-  int            ithigh            = cl.getValue<int>    ("ithigh",             1000);
-  int            earlyootlow       = cl.getValue<int>    ("earlyootlow",           0);
-  int            earlyoothigh      = cl.getValue<int>    ("earlyoothigh",       1000);
-  int            lateootlow        = cl.getValue<int>    ("lateootlow",            0);
-  int            lateoothigh       = cl.getValue<int>    ("lateoothigh",        1000);
-  int            totalootlow       = cl.getValue<int>    ("totalootlow",           0);
-  int            totaloothigh      = cl.getValue<int>    ("totaloothigh",       1000);
+ // int            itlow             = cl.getValue<int>    ("itlow",                 0);
+ // int            ithigh            = cl.getValue<int>    ("ithigh",             1000);
+ // int            earlyootlow       = cl.getValue<int>    ("earlyootlow",           0);
+ // int            earlyoothigh      = cl.getValue<int>    ("earlyoothigh",       1000);
+ // int            lateootlow        = cl.getValue<int>    ("lateootlow",            0);
+ // int            lateoothigh       = cl.getValue<int>    ("lateoothigh",        1000);
+ // int            totalootlow       = cl.getValue<int>    ("totalootlow",           0);
+ // int            totaloothigh      = cl.getValue<int>    ("totaloothigh",       1000);
   TString         weightfile       = cl.getValue<TString>("weightfile",           "");
 
   if (!cl.check()) return 0;

@@ -443,7 +443,7 @@ void fit_double_gaussian(TH1F*& hrsp)
   
   string histname = hrsp->GetName();
   double mean     = hrsp->GetMean();
-  double rms      = hrsp->GetRMS();
+  //double rms      = hrsp->GetRMS();
 
   int maxbin    = hrsp->GetMaximumBin();
   double norm1  = hrsp->GetBinContent(maxbin);

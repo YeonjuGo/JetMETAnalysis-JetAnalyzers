@@ -6,11 +6,11 @@
 //            12/08/2011 Alexx Perloff  <aperloff@physics.tamu.edu>
 ///////////////////////////////////////////////////////////////////
 
-#include "JetMETAnalysis/JetAnalyzers/interface/Settings.h"
-#include "JetMETAnalysis/JetAnalyzers/interface/VectorWrapper.h"
-#include "JetMETAnalysis/JetAnalyzers/interface/VectorWrapper2D.h"
-#include "JetMETAnalysis/JetUtilities/interface/TProfileMDF.h"
-#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
+#include "../../../JetMETAnalysis/JetAnalyzers/interface/Settings.h"
+#include "../../../JetMETAnalysis/JetAnalyzers/interface/VectorWrapper.h"
+#include "../../../JetMETAnalysis/JetAnalyzers/interface/VectorWrapper2D.h"
+#include "../../../JetMETAnalysis/JetUtilities/interface/TProfileMDF.h"
+#include "../../../JetMETAnalysis/JetUtilities/interface/CommandLine.h"
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
@@ -180,7 +180,7 @@ int main(int argc,char**argv)
       unsigned int nrefmax = 2;
       unsigned char nref;
       char name[1024];
-      char title[1024];
+      //char title[1024];
       float refpt[100];
       float refeta[100];
       float refphi[100];
@@ -188,7 +188,7 @@ int main(int argc,char**argv)
       float jteta[100];
       float jtphi[100];
       float refdrjt[100];
-      float refdphijt[100];
+      //float refdphijt[100];
       int   refpdgid[100];
       vector<int>* npus = new vector<int>;
       vector<Float_t>* sumpt_lowpt = new vector<Float_t>;
@@ -398,6 +398,7 @@ int main(int argc,char**argv)
             return 0;
          }
          RespVsRho->SetDirectory(0);
+         RhoVsPileupVsEta = new TProfileMDF("RhoVsPileupVsEta","RhoVsPileupVsEta");
       }
       outf->cd();
       OffVsRhoVsEta = new TProfile2D("OffVsRhoVsEta","OffVsRhoVsEta",26,0,26,NETA,veta);
