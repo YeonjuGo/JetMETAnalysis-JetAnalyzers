@@ -39,7 +39,8 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
   cout<<endl;
   cout<<endl;
 
-  const int ndir=42;
+  //const int ndir=42;
+  const int ndir=24;
 
   string DirName[ndir]= {
 //    "ak1CaloJetAnalyzer",
@@ -106,7 +107,8 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
     tr_in = (TTree*)fin->Get(Form("%s/t",DirName[idir].c_str()));
 
     float fentries = (float)tr_in->GetEntries();
-    float weight = xSection/(fentries/1000.);
+    float weight = xSection/(fentries);
+    //float weight = xSection/(fentries/1000.);
     //float weight = effec_xsec/(fentries/1000.);
     //weight=1;
     cout<<" weight "<<weight<<" \t " << tr_in->GetName() << " entries : " << fentries << endl;
