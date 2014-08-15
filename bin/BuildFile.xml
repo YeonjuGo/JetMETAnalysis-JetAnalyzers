@@ -23,4 +23,5 @@
 <bin   name="jet_draw_l2_correction_x"         file="jet_draw_l2_correction_x.cc" />
 
 <bin   name="HI_weight.exe" file="HI_weight.C" />
+<bin   name="HI_weight_pPb.exe" file="HI_weight_pPb.C" />
 <bin   name="HI_CalJec.exe" file="HI_CalJec.C" />
