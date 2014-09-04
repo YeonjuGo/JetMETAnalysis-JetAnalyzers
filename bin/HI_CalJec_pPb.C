@@ -81,15 +81,17 @@ const double phibins[] = {-3.141,-2.700,-2.100,-1.500,-0.900,-0.300,
 			  0.300,0.900,1.500,2.100,2.700,3.141
 };
 const int nphi = sizeof(phibins)/sizeof(double) - 1;
-
-const int kAlgos = 42;
-const char *calgo[kAlgos] = {"ak2PF","ak3PF","ak4PF","ak5PF","ak2Calo","ak3Calo","ak4Calo","ak5Calo",
-			     "akPu2PF","akPu3PF","akPu4PF","akPu5PF","akPu2Calo","akPu3Calo","akPu4Calo","akPu5Calo",
-			     "akVs2PF","akVs3PF","akVs4PF","akVs5PF","akVs2Calo","akVs3Calo","akVs4Calo","akVs5Calo"
+/*
+const int kAlgos = 2;
+const char *calgo[kAlgos] = {"ak3PF","ak4PF"};
+string corrFileName[kAlgos]= {"AK3PF","AK4PF"};
+*/
+const int kAlgos = 12;
+const char *calgo[kAlgos] = {"ak3PF","ak4PF","ak5PF","ak3Calo","ak4Calo","ak5Calo",
+			     "akPu3PF","akPu4PF","akPu5PF","akPu3Calo","akPu4Calo","akPu5Calo"
 };
-string corrFileName[kAlgos]= {"AK2PF","AK3PF","AK4PF","AK5PF","AK2Calo","AK3Calo","AK4Calo","AK5Calo",
-			      "AKPu2PF","AKPu3PF","AKPu4PF","AKPu5PF","AKPu2Calo","AKPu3Calo","AKPu4Calo","AKPu5Calo",
-			      "AKVs2PF","AKVs3PF","AKVs4PF","AKVs5PF","AKVs2Calo","AKVs3Calo","AKVs4Calo","AKVs5Calo"
+string corrFileName[kAlgos]= {"AK3PF","AK4PF","AK5PF","AK3Calo","AK4Calo","AK5Calo",
+			      "AKPu3PF","AKPu4PF","AKPu5PF","AKPu3Calo","AKPu4Calo","AKPu5Calo"
 };
 
 //float kDelRCut=0.3;
@@ -104,7 +106,7 @@ bool is_file(const char *fileName)
 
 
 TStopwatch timer;
-int CalJec(const char *ksp="pp")
+int CalJec(const char *ksp="pPb")
 {
 
   timer.Start();
@@ -112,7 +114,8 @@ int CalJec(const char *ksp="pp")
   std::string inname="";
   int knj = kAlgos;
 
-  inname="gammajet_pp_bacJEC_mergedpthatbins_test_MC.root";
+  //inname="leading_gammajet_pPb_bacJEC_mergedpthatbins_test_MC.root";
+  inname="gammajet_pPb_bacJEC_mergedpthatbins_test_MC.root";
   //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_bacJEC_mergedpthatbins_Track8_Jet29_MC.root";
   //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_official_mergedpthatbins_Track8_Jet28_MC.root";
 
@@ -121,7 +124,7 @@ int CalJec(const char *ksp="pp")
   std::string outname="";
   //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_official_Track8_Jet28_MC.root";
   //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root";
-  outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root";
+  outname="JetResponse_histos_lowpt_ppSignal_pPbReco_leading_gammajet.root";
 
   TFile *fout = new TFile(outname.c_str(),"RECREATE");
 
@@ -381,7 +384,8 @@ int CalJec(const char *ksp="pp")
     string L2Name, L3Name;
     JetCorrectorParameters *parHI_l2=0, *parHI_l3=0;
     vector<JetCorrectorParameters> vpar_HI;
-    FactorizedJetCorrector *_JEC_HI = new FactorizedJetCorrector(vpar_HI);//JR
+    FactorizedJetCorrector *_JEC_HI;
+  //  FactorizedJetCorrector *_JEC_HI = new FactorizedJetCorrector(vpar_HI);//JR
 
     //! Sample from which JEC was derived
     //L2Name = "/net/hisrv0001/home/pawan/Validation/Track8_Jet19/CMSSW_5_3_16/src/JEC_base/pbpb2014/txtfiles/JEC_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet29_L2Relative_"+corrFileName[nj]+".txt";
@@ -429,15 +433,15 @@ int CalJec(const char *ksp="pp")
 	//if(igen>2)continue;
 
 	int gj = igen;
-
 	if(fabs(refeta[gj]) > ketacut || rawpt[gj] <= 10)continue;
 
 	_JEC_HI->setJetEta(jteta[gj]);
 	_JEC_HI->setJetPt (rawpt[gj]);
-
-	float corrfac = _JEC_HI->getCorrection();
-	std::vector <float> subcorr = _JEC_HI->getSubCorrections();
-	float l2corr = subcorr[0];
+//	float corrfac = _JEC_HI->getCorrection();
+	//float corrfac =1.0; 
+	std::vector<float> subcorr = _JEC_HI->getSubCorrections();
+    float corrfac = subcorr[subcorr.size()-1]; 
+    float l2corr = subcorr[0];
 	float l3corr = subcorr[1];
 	float recopt  = rawpt[gj]*corrfac;  //! correction with JECv14
 	//float recopt_l2corr = rawpt[gj]*l2corr;
@@ -454,7 +458,6 @@ int CalJec(const char *ksp="pp")
 	  continue;
 	}
 
-
 	hcorr_genpt[nj]->Fill(refpt[gj],corrfac,wxs*wcen*wvz);
 	hl2corr_genpt[nj]->Fill(refpt[gj],l2corr,wxs*wcen*wvz);
 	hl3corr_genpt[nj]->Fill(refpt[gj],l3corr,wxs*wcen*wvz);
@@ -470,7 +473,6 @@ int CalJec(const char *ksp="pp")
 
 	hrawpt_genpt[nj]->Fill(refpt[gj],rawpt[gj],wxs*wcen*wvz);
 	hrecopt_genpt[nj]->Fill(refpt[gj],recopt,wxs*wcen*wvz);
-
 	float recoeta = jteta[gj];
 	float recophi = jtphi[gj];
 	float delr    = refdrjt[gj];
@@ -493,7 +495,6 @@ int CalJec(const char *ksp="pp")
 	  hPtAll [nj]->Fill(refpt[gj],wxs*wcen*wvz);
 	  hEtaAll[nj]->Fill(refeta[gj],wxs*wcen*wvz);
 	  hPhiAll[nj]->Fill(refphi[gj],wxs*wcen*wvz);
-
 	  if(delr < kdRCut){
 	    //! Numerator for reconstrunction efficiency
 	    hPtSel [nj]->Fill(refpt[gj],wxs*wcen*wvz);
@@ -530,7 +531,6 @@ int CalJec(const char *ksp="pp")
 	double resp_raw  =  rawpt[gj] / refpt[gj];
 	double ratio     =  recopt / rawpt[gj];
 
-
 	if( refpt[gj] > 35.0 ){
 	  for (int idr=0;idr<25;idr++) {
 	    double drcut = 0.0+idr*(0.25-0.00)/(25-1);
@@ -559,7 +559,6 @@ int CalJec(const char *ksp="pp")
 	hgeneta[nj]->Fill(refeta[gj],wxs*wcen*wvz);
 	hgenphi[nj]->Fill(refphi[gj],wxs*wcen*wvz);
 
-
 	//! Response in pt and eta
 	if( ipt>=0 && ipt<nbins ){
 	  havjetpt_genm [nj][ipt]->Fill(recopt,wxs*wcen*wvz);
@@ -586,7 +585,6 @@ int CalJec(const char *ksp="pp")
       iEvent++;
       //std::cout<<"Completed event #  "<<ievt<<std::endl;
     }//! event loop ends
-
     delete parHI_l2;
     delete parHI_l3;
     delete _JEC_HI;
@@ -655,6 +653,6 @@ double delphi(double phi1, double phi2)
 
 int main(int argc, char **argv)
 {
-  CalJec("pp");
+  CalJec("pPb");
   return 0;
 }
