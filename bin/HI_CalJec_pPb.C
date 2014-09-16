@@ -594,7 +594,7 @@ int CalJec(const char *ksp="pPb")
   std::cout<<std::endl;
   for(int nj=0;nj<knj;nj++){
     std::cout<<calgo[nj] << std::endl;
-    std::cout<<"\t # of events : "<< " pp " << "  " << nevt[nj] << "  " << njets[nj] << std::endl;
+    std::cout<<"\t # of events : "<< " pPb " << "  " << nevt[nj] << "  " << njets[nj] << std::endl;
   }
   std::cout<<std::endl;
 

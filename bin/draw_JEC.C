@@ -27,10 +27,20 @@ const double phibins[] = {-3.141,-2.700,-2.100,-1.500,-0.900,-0.300,
 	0.300,0.900,1.500,2.100,2.700,3.141};
 const int nphi = sizeof(phibins)/sizeof(double) - 1;
 
+//for 2013 HiWinter pPb
+const int kAlgos = 12; 
+const char *calgo[kAlgos] = {"ak3PF","ak4PF","ak5PF","ak3Calo","ak4Calo","ak5Calo",
+                     "akPu3PF","akPu4PF","akPu5PF","akPu3Calo","akPu4Calo","akPu5Calo"
+};
+
+//for 2014 private PbPb
+/*
 const int kAlgos = 24; 
 const char *calgo[kAlgos] = {"ak2PF","ak3PF","ak4PF","ak5PF","ak2Calo","ak3Calo","ak4Calo","ak5Calo",
 	"akPu2PF","akPu3PF","akPu4PF","akPu5PF","akPu2Calo","akPu3Calo","akPu4Calo","akPu5Calo",
 	"akVs2PF","akVs3PF","akVs4PF","akVs5PF","akVs2Calo","akVs3Calo","akVs4Calo","akVs5Calo"};
+*/
+
 //string corrFileName[kAlgos]= {"AK1PF","AK2PF","AK3PF","AK4PF","AK5PF","AK6PF","AK7PF","AK1Calo","AK2Calo","AK3Calo","AK4Calo","AK5Calo","AK6Calo","AK7Calo",
 //"AKPu1PF","AKPu2PF","AKPu3PF","AKPu4PF","AKPu5PF","AKPu6PF","AKPu7PF","AKPu1Calo","AKPu2Calo","AKPu3Calo","AKPu4Calo","AKPu5Calo","AKPu6Calo","AKPu7Calo",
 //                  "AK1PF","AK2PF","AK3PF","AK4PF","AK5PF","AK6PF","AK7PF","AK1Calo","AK2Calo","AK3Calo","AK4Calo","AK5Calo","AK6Calo","AK7Calo",
@@ -43,7 +53,8 @@ const char *calgo[kAlgos] = {"ak2PF","ak3PF","ak4PF","ak5PF","ak2Calo","ak3Calo"
 void draw_JEC(){
 	TH1::SetDefaultSumw2();
 	const int np = 10;
-	TFile* fin = new TFile("yj_JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root");
+	TFile* fin = new TFile("JetResponse_histos_lowpt_ppSignal_pPbReco_leading_gammajet.root");
+	//TFile* fin = new TFile("yj_JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root");
 	// raw/gen pt dep.
 	TH1D* hresrrpt_genm[kAlgos][npt];
 	double hresrrpt_genm_mean[kAlgos][npt];
@@ -117,7 +128,7 @@ void draw_JEC(){
 		all_hrescrpt_genm_sigma[nj] -> SetAxisRange(10,120,"X"); 
 		all_hrescrpt_genm_sigma[nj] -> SetAxisRange(-0.01,0.03,"Y"); 
 		all_hrescrpt_genm_sigma[nj] -> SetMarkerStyle(20); 
-
+cout << "131" <<endl;
 		for(int ip=0; ip<np;ip++){ //for each pt bin.
 			all_hrescrpt_genm_eta[nj][ip] = new TH1D(Form("all_hrescrpt_genm_eta%d_%d", nj, ip), Form("(Reco/Gen) jet pt vs. eta for %s", calgo[nj]), neta, etabins);
 			//all_hrescrpt_genm_eta[nj][ip] -> SetAxisRange(10,120,"X"); 
@@ -139,7 +150,7 @@ void draw_JEC(){
 		}
 		//all_hrescrpt_genm[nj] -> SetBinContent(1, 1.4);	
 		//all_hrescrpt_genm[nj] -> SetBinContent(2, 1.0);	
-//		cout << "137" << endl;
+        		cout << "137" << endl;
 
 		for(int ip=0; ip<np;ip++){
 			all_hresrrpt_genm[nj] -> SetBinContent(ip+1, hresrrpt_genm_mean[nj][ip]);	
@@ -159,7 +170,7 @@ void draw_JEC(){
 			}
 		}
 	}
-
+    cout << "173" << endl;
 	// TCanvas!!
 	// RECO/GEN pt vs. GEN pt
 	/*	
