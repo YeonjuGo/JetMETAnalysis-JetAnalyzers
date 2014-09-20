@@ -25,3 +25,6 @@
 <bin   name="HI_weight.exe" file="HI_weight.C" />
 <bin   name="HI_weight_pPb.exe" file="HI_weight_pPb.C" />
 <bin   name="HI_CalJec.exe" file="HI_CalJec.C" />
+<bin   name="HI_CalJec_pPb.exe" file="HI_CalJec_pPb.C" />
+
+<bin   name="HI_weight_pPb_leadingPho.exe" file="HI_weight_pPb_leadingPho.C" />
