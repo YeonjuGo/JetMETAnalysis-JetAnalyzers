@@ -82,12 +82,12 @@ const double phibins[] = {-3.141,-2.700,-2.100,-1.500,-0.900,-0.300,
 };
 const int nphi = sizeof(phibins)/sizeof(double) - 1;
 
-/*
+
 const int kAlgos = 1;
 const char *calgo[kAlgos] = {"ak3Calo"};
 string corrFileName[kAlgos]= {"AK3Calo"};
-*/
 
+/*
 const int kAlgos = 12;
 const char *calgo[kAlgos] = {"ak3PF","ak4PF","ak5PF","ak3Calo","ak4Calo","ak5Calo",
 			     "akPu3PF","akPu4PF","akPu5PF","akPu3Calo","akPu4Calo","akPu5Calo"
@@ -95,7 +95,7 @@ const char *calgo[kAlgos] = {"ak3PF","ak4PF","ak5PF","ak3Calo","ak4Calo","ak5Cal
 string corrFileName[kAlgos]= {"AK3PF","AK4PF","AK5PF","AK3Calo","AK4Calo","AK5Calo",
 			      "AKPu3PF","AKPu4PF","AKPu5PF","AKPu3Calo","AKPu4Calo","AKPu5Calo"
 };
-
+*/
 //float kDelRCut=0.3;
 
 bool is_file(const char *fileName);
@@ -126,7 +126,8 @@ int CalJec(const char *ksp="pPb")
   std::string outname="";
   //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_official_Track8_Jet28_MC.root";
   //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root";
-  outname="JetResponse_histos_lowpt_ppSignal_pPbReco_leading_gammajet.root";
+  //outname="JetResponse_histos_lowpt_ppSignal_pPbReco_leading_gammajet.root";
+  outname="Final_oneAlgo_"+corrFileName[0]+".root";
 
   TFile *fout = new TFile(outname.c_str(),"RECREATE");
 
