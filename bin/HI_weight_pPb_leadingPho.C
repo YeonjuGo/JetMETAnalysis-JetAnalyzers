@@ -164,13 +164,16 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
     float pt[1000];
     float hadronicOverEm[1000];
     float phi[1000];
- //   float eta[1000];
+    int isGenMatched[1000];
+    int genMomId[1000];
   
 
     tr_pho->SetBranchAddress("nPhotons",&nPhotons);
     tr_pho->SetBranchAddress("pt",pt);
     tr_pho->SetBranchAddress("hadronicOverEm",hadronicOverEm);
     tr_pho->SetBranchAddress("phi",phi);
+    tr_pho->SetBranchAddress("isGenMatched",isGenMatched);
+    tr_pho->SetBranchAddress("genMomId",genMomId);
 
     //! Add Friends to the TTree
     tr_in->AddFriend(tr_ev);
@@ -207,7 +210,6 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
     tr_out->Branch("subid",subid,"subid[nref]/I");
 
 
-
     Long64_t nbytes = 0;
     for (Long64_t i=0; i<fentries;i++) {
       nbytes += tr_in->GetEntry(i);
@@ -223,6 +225,8 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
       for(Int_t i = 0; i<nPhotons; ++i)
       {
           if(hadronicOverEm[i]>=0.1) continue;
+          if(genMomId[i]>22) continue;
+          if(isGenMatched[i]!=1) continue;
           if(pt[i] > leadingPt)
           {
               leadingPt = pt[i];
@@ -234,14 +238,18 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
 
       //! jet loop
       for(int iref=0;iref<nref;iref++){
-          if(TMath::Abs(jteta[iref]) > 3.0) continue; //jet eta cut
           Double_t dphi = TMath::ACos(TMath::Cos(phi[leadingIndex]-jtphi[iref]));
-          if(dphi < TMath::Pi()/2)  continue;//away-side jet cut
-          corrpt[iref] = jtpt[iref];
-          jtpt  [iref] = rawpt[iref];
-
+          //if(TMath::Abs(jteta[iref]) > 3.0 || dphi < TMath::Pi()/2){
+          if(dphi < TMath::Pi()/2){
+              corrpt[iref]=-1;
+              jtpt[iref]=-1;
+              rawpt[iref]=-1;
+              pt[iref]=-1;
+          } else{
+              corrpt[iref]=jtpt[iref];
+              jtpt[iref]=rawpt[iref];
+          }
       }
-
       tr_out->Fill();
     }
 
@@ -257,16 +265,16 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
 }
 float GetXsec(float maxpt)
 {
-  float effxsec=0;
-  for(int i=0; i<11; i++){
-    //for(int i=0; i<10; i++){
-    if(TMath::Abs(maxpt - xsec[i][2]) < 1e-08){
-      //effxsec = xsec[i][0] - xsec[i+1][0];
-      effxsec = xsec[i][0];
-      return effxsec;
+    float effxsec=0;
+    for(int i=0; i<11; i++){
+        //for(int i=0; i<10; i++){
+        if(TMath::Abs(maxpt - xsec[i][2]) < 1e-08){
+            //effxsec = xsec[i][0] - xsec[i+1][0];
+            effxsec = xsec[i][0];
+            return effxsec;
+        }
     }
-  }
-  return  1;
+    return  1;
 }
 
 int main(int argc, char **argv)
