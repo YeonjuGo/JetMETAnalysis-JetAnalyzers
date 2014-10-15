@@ -225,7 +225,7 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
       for(Int_t i = 0; i<nPhotons; ++i)
       {
           if(hadronicOverEm[i]>=0.1) continue;
-          if(genMomId[i]>22) continue;
+          if(TMath::Abs(genMomId[i])>22) continue;
           if(isGenMatched[i]!=1) continue;
           if(pt[i] > leadingPt)
           {
@@ -241,10 +241,10 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
           Double_t dphi = TMath::ACos(TMath::Cos(phi[leadingIndex]-jtphi[iref]));
           //if(TMath::Abs(jteta[iref]) > 3.0 || dphi < TMath::Pi()/2){
           if(dphi < TMath::Pi()/2){
-              corrpt[iref]=-1;
-              jtpt[iref]=-1;
-              rawpt[iref]=-1;
-              pt[iref]=-1;
+              corrpt[iref]=1000;
+              jtpt[iref]=1000;
+              rawpt[iref]=1000;
+              pt[iref]=1000;
           } else{
               corrpt[iref]=jtpt[iref];
               jtpt[iref]=rawpt[iref];
