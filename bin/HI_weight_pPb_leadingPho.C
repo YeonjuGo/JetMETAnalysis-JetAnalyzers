@@ -93,7 +93,7 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
 
   TFile *fout=new TFile(outfile,"RECREATE");
 
-  TTree *tr_in=0, *tr_out=0, *tr_pho;
+  TTree *tr_in=0, *tr_out=0, *tr_pho=0;
   Int_t           hiBin;
 
   TTree *tr_ev = 0;
@@ -102,6 +102,13 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
   tr_ev->SetBranchStatus("*",0,0);
   tr_ev->SetBranchStatus("hiBin",1,0);
 
+  Int_t	pprimaryVertexFilter, pPAcollisionEventSelectionPA, pPAprimaryVertexFilter;
+  TTree *tr_skim = 0;
+  tr_skim = (TTree*)fin->Get("skimanalysis/HltTree");
+  tr_skim->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);
+  tr_skim->SetBranchAddress("pPAcollisionEventSelectionPA",&pPAcollisionEventSelectionPA);
+  tr_skim->SetBranchAddress("pPAprimaryVertexFilter",&pPAprimaryVertexFilter);
+  
   for(Int_t idir=0;idir<ndir;idir++){
 
     cout <<"idir =" << idir <<" JetName ="<< DirName[idir].c_str() <<endl ;
@@ -178,14 +185,20 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
     //! Add Friends to the TTree
     tr_in->AddFriend(tr_ev);
     tr_in->AddFriend(tr_pho);
+    tr_in->AddFriend(tr_skim);
 
     fout->mkdir(DirName[idir].c_str());
     fout->cd(DirName[idir].c_str());
 
     tr_out = new TTree("t","Jet  Response Analyzer");
     tr_out->SetMaxTreeSize(4200000000);
-
+ 
     // Set output branch addresses.
+    tr_out->Branch("pprimaryVertexFilter",&pprimaryVertexFilter,"pprimaryVertexFilter/I");
+    tr_out->Branch("pPAcollisionEventSelectionPA",&pPAcollisionEventSelectionPA,"pPAcollisionEventSelectionPA/I");
+    tr_out->Branch("pPAprimaryVertexFilter",&pPAprimaryVertexFilter,"pPAprimaryVertexFilter/I");
+    tr_out->Branch("nPhotons",&nPhotons,"nPhotons/I");
+    tr_out->Branch("pt",&pt,"pt/F");
     tr_out->Branch("hiBin",&hiBin,"hiBin/I");
     tr_out->Branch("nref",&nref,"nref/I");
     tr_out->Branch("pthat",&pthat,"pthat/F");
@@ -216,10 +229,14 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
 
       if(pthat > maxpthat) continue; 
 
+      if(pprimaryVertexFilter == 0) continue;// skim selection cut
+      if(pPAcollisionEventSelectionPA == 0) continue;// skim selection cut
+      //if(pPAprimaryVertexFilter== 0) continue;// skim selection cut
+
       if(nPhotons == 0) continue;// no photon event
 
       //! loop over photons in the event
-      Float_t leadingPt = 30; //minPt is 40GeV
+      Float_t leadingPt = 15; //minPt is 40GeV
       Int_t leadingIndex = -1;
 
       for(Int_t i = 0; i<nPhotons; ++i)
@@ -241,10 +258,10 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
           Double_t dphi = TMath::ACos(TMath::Cos(phi[leadingIndex]-jtphi[iref]));
           //if(TMath::Abs(jteta[iref]) > 3.0 || dphi < TMath::Pi()/2){
           if(dphi < TMath::Pi()/2){
-              corrpt[iref]=1000;
-              jtpt[iref]=1000;
-              rawpt[iref]=1000;
-              pt[iref]=1000;
+              corrpt[iref]=2000.0;
+              jtpt[iref]=2000.0;
+              rawpt[iref]=2000.0;
+              pt[iref]=2000.0;
           } else{
               corrpt[iref]=jtpt[iref];
               jtpt[iref]=rawpt[iref];

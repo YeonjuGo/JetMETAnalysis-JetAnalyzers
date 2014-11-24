@@ -12,8 +12,6 @@
 #include "TLegend.h"
 #include "TString.h"
 #include "TLatex.h"
-#include "TStyle.h"
-#include "TLine.h"
 #include "stdio.h"
 #include <iostream>
 
@@ -54,35 +52,53 @@ const char *calgo[kAlgos] = {"ak2PF","ak3PF","ak4PF","ak5PF","ak2Calo","ak3Calo"
 
 void draw_JEC(){
 	TH1::SetDefaultSumw2();
-	const int np = 11;
-	//TFile* fin = new TFile("afterJEC_output_v1.root");
-	//TFile* fin = new TFile("afterJEC_output_v3_nonPuJEC.root");
-	TFile* fin = new TFile("afterJEC_output_test.root");
-	gStyle -> SetOptStat(0);
+	const int np = 12;
+	TFile* fin = new TFile("afterJEC_output.root");
 	
 	// raw/gen pt dep.
 	TH1D* hresrrpt_genm[kAlgos][npt];
+	double hresrrpt_genm_mean[kAlgos][npt];
+	double hresrrpt_genm_sigma[kAlgos][npt];
+
 	// reco/gen pt dep.
 	TH1D* hrescrpt_genm[kAlgos][npt];
+	double hrescrpt_genm_mean[kAlgos][npt];
+	double hrescrpt_genm_sigma[kAlgos][npt];
+	
 	// reco/gen eta dep.
 	TH1D* hrescrpt_genm_eta[kAlgos][npt][neta];
+	double hrescrpt_genm_eta_mean[kAlgos][npt][neta];
+	double hrescrpt_genm_eta_sigma[kAlgos][npt][neta];
+
 	// reco/gen phi dep.
 	TH1D* hrescrpt_genm_phi[kAlgos][npt][nphi];
+	double hrescrpt_genm_phi_mean[kAlgos][npt][nphi];
+	double hrescrpt_genm_phi_sigma[kAlgos][npt][nphi];
 
 	// get reco/gen value for each pt bin.
 	for(int nj=0; nj<kAlgos; nj++){ //for each algorithm,
 		for(int ip=0; ip<np;ip++){ //for each pt bin.
 			hresrrpt_genm[nj][ip] = (TH1D*) fin -> Get(Form("%sJetAnalyzer/hresrrpt_genm%d_%d", calgo[nj], nj, ip)); 
+			hresrrpt_genm_mean[nj][ip] = hresrrpt_genm[nj][ip] -> GetMean(); 
+			hresrrpt_genm_sigma[nj][ip] = hresrrpt_genm[nj][ip] -> GetRMS();
+
 			hrescrpt_genm[nj][ip] = (TH1D*) fin -> Get(Form("%sJetAnalyzer/hrescrpt_genm%d_%d", calgo[nj], nj, ip)); 
+			hrescrpt_genm_mean[nj][ip] = hrescrpt_genm[nj][ip] -> GetMean(); 
+			hrescrpt_genm_sigma[nj][ip] = hrescrpt_genm[nj][ip] -> GetRMS();
+
 			for(int ieta=0; ieta<neta; ieta++){	
 				hrescrpt_genm_eta[nj][ip][ieta] = (TH1D*) fin -> Get(Form("%sJetAnalyzer/hrescrpt_genm_eta%d_%d_%d", calgo[nj], nj, ip, ieta)); 
+				hrescrpt_genm_eta_mean[nj][ip][ieta] = hrescrpt_genm_eta[nj][ip][ieta] -> GetMean(); 
+				hrescrpt_genm_eta_sigma[nj][ip][ieta] = hrescrpt_genm_eta[nj][ip][ieta] -> GetRMS();
 			}
 			for(int iphi=0; iphi<nphi; iphi++){	
 				hrescrpt_genm_phi[nj][ip][iphi] = (TH1D*) fin -> Get(Form("%sJetAnalyzer/hrescrpt_genm_phi%d_%d_%d", calgo[nj], nj, ip, iphi)); 
+				hrescrpt_genm_phi_mean[nj][ip][iphi] = hrescrpt_genm_phi[nj][ip][iphi] -> GetMean(); 
+				hrescrpt_genm_phi_sigma[nj][ip][iphi] = hrescrpt_genm_phi[nj][ip][iphi] -> GetRMS();
 			}
 		}
 	}
-
+	
 	//assemble values into one histogram	
 	TH1D* all_hresrrpt_genm[kAlgos]; // reaw/gen
 	TH1D* all_hrescrpt_genm[kAlgos]; // reco/gen vs. gen pt
@@ -94,156 +110,130 @@ void draw_JEC(){
 	TH1D* all_hrescrpt_genm_eta_sigma[kAlgos][npt]; // reco/gen vs. eta
 	TH1D* all_hrescrpt_genm_phi_sigma[kAlgos][npt]; // reco/gen vs. phi
 	for(int nj=0; nj<kAlgos; nj++){
-		all_hresrrpt_genm[nj] = new TH1D(Form("all_hresrrpt_genm%d", nj), Form("(Raw/Gen) jet pt vs. gen pt for %s ; p_{T} (GeV); Raw p_{T}/Gen p_{T}", calgo[nj]), npt, ptbins);
-		all_hresrrpt_genm[nj] -> SetAxisRange(10,ptbins[np-1],"X"); 
+		all_hresrrpt_genm[nj] = new TH1D(Form("all_hresrrpt_genm%d", nj), Form("(Raw/Gen) jet pt vs. gen pt for %s", calgo[nj]), npt, ptbins);
+		all_hresrrpt_genm[nj] -> SetAxisRange(10,120,"X"); 
 		all_hresrrpt_genm[nj] -> SetAxisRange(0.95,1.05,"Y"); 
 		all_hresrrpt_genm[nj] -> SetMarkerStyle(20); 
-		all_hresrrpt_genm_sigma[nj] = new TH1D(Form("all_hresrrpt_genm_sigma%d", nj), Form("Sigma of (Raw/Gen) jet pt vs. gen pt for %s ; p_{T} (GeV); sigma", calgo[nj]), npt, ptbins);
-		all_hresrrpt_genm_sigma[nj] -> SetAxisRange(10,ptbins[np-1],"X"); 
-		all_hresrrpt_genm_sigma[nj] -> SetAxisRange(0,0.5,"Y"); 
+		all_hresrrpt_genm_sigma[nj] = new TH1D(Form("all_hresrrpt_genm_sigma%d", nj), Form("Sigma of (Raw/Gen) jet pt vs. gen pt for %s", calgo[nj]), npt, ptbins);
+		all_hresrrpt_genm_sigma[nj] -> SetAxisRange(10,120,"X"); 
+		all_hresrrpt_genm_sigma[nj] -> SetAxisRange(-0.01,0.03,"Y"); 
 		all_hresrrpt_genm_sigma[nj] -> SetMarkerStyle(20); 
 
-		all_hrescrpt_genm[nj] = new TH1D(Form("all_hrescrpt_genm%d", nj), Form("(Reco/Gen) jet pt vs. gen pt for %s ; p_{T} (GeV); Reco p_{T}/Gen p_{T}", calgo[nj]), npt, ptbins);
-		all_hrescrpt_genm[nj] -> SetAxisRange(10,ptbins[np-1],"X"); 
+		all_hrescrpt_genm[nj] = new TH1D(Form("all_hrescrpt_genm%d", nj), Form("(Reco/Gen) jet pt vs. gen pt for %s", calgo[nj]), npt, ptbins);
+		all_hrescrpt_genm[nj] -> SetAxisRange(10,120,"X"); 
 		all_hrescrpt_genm[nj] -> SetAxisRange(0.95,1.05,"Y"); 
 		all_hrescrpt_genm[nj] -> SetMarkerStyle(20); 
-		all_hrescrpt_genm_sigma[nj] = new TH1D(Form("all_hrescrpt_genm_sigma%d", nj), Form("Sigma of (Reco/Gen) jet pt vs. gen pt for %s ; p_{T} (GeV); sigma", calgo[nj]), npt, ptbins);
-		all_hrescrpt_genm_sigma[nj] -> SetAxisRange(10,ptbins[np-1],"X"); 
-		all_hrescrpt_genm_sigma[nj] -> SetAxisRange(0,0.5,"Y"); 
+		all_hrescrpt_genm_sigma[nj] = new TH1D(Form("all_hrescrpt_genm_sigma%d", nj), Form("Sigma of (Reco/Gen) jet pt vs. gen pt for %s", calgo[nj]), npt, ptbins);
+		all_hrescrpt_genm_sigma[nj] -> SetAxisRange(10,120,"X"); 
+		all_hrescrpt_genm_sigma[nj] -> SetAxisRange(-0.01,0.03,"Y"); 
 		all_hrescrpt_genm_sigma[nj] -> SetMarkerStyle(20); 
 		
 		for(int ip=0; ip<np;ip++){ //for each pt bin.
-			all_hrescrpt_genm_eta[nj][ip] = new TH1D(Form("all_hrescrpt_genm_eta%d_%d", nj, ip), Form("(Reco/Gen) jet pt vs. eta for %s;#eta;Reco p_{T}/Gen p_{T}", calgo[nj]), neta, etabins);
+			all_hrescrpt_genm_eta[nj][ip] = new TH1D(Form("all_hrescrpt_genm_eta%d_%d", nj, ip), Form("(Reco/Gen) jet pt vs. eta for %s", calgo[nj]), neta, etabins);
 			//all_hrescrpt_genm_eta[nj][ip] -> SetAxisRange(10,120,"X"); 
 			all_hrescrpt_genm_eta[nj][ip] -> SetAxisRange(0.95,1.05,"Y"); 
 			all_hrescrpt_genm_eta[nj][ip] -> SetMarkerStyle(20); 
-			all_hrescrpt_genm_eta_sigma[nj][ip] = new TH1D(Form("all_hrescrpt_genm_eta_sigma%d_%d", nj, ip), Form("Sigma of (Reco/Gen) jet pt vs. eta for %s;#eta;sigma", calgo[nj]), neta, etabins);
+			all_hrescrpt_genm_eta_sigma[nj][ip] = new TH1D(Form("all_hrescrpt_genm_eta_sigma%d_%d", nj, ip), Form("Sigma of (Reco/Gen) jet pt vs. eta for %s", calgo[nj]), neta, etabins);
 			//all_hrescrpt_genm_eta_sigma[nj][ip] -> SetAxisRange(10,120,"X"); 
-			all_hrescrpt_genm_eta_sigma[nj][ip] -> SetAxisRange(0,0.5,"Y"); 
+			all_hrescrpt_genm_eta_sigma[nj][ip] -> SetAxisRange(-0.01,0.03,"Y"); 
 			all_hrescrpt_genm_eta_sigma[nj][ip] -> SetMarkerStyle(20); 
 
-			all_hrescrpt_genm_phi[nj][ip] = new TH1D(Form("all_hrescrpt_genm_phi%d_%d", nj, ip), Form("(Reco/Gen) jet pt vs. phi for %s;#phi;Reco p_{T}/Gen p_{T}", calgo[nj]), nphi, phibins);
+			all_hrescrpt_genm_phi[nj][ip] = new TH1D(Form("all_hrescrpt_genm_phi%d_%d", nj, ip), Form("(Reco/Gen) jet pt vs. phi for %s", calgo[nj]), nphi, phibins);
 			//all_hrescrpt_genm[nj][ip] -> SetAxisRange(10,120,"X"); 
 			all_hrescrpt_genm_phi[nj][ip] -> SetAxisRange(0.95,1.05,"Y"); 
 			all_hrescrpt_genm_phi[nj][ip] -> SetMarkerStyle(20); 
-			all_hrescrpt_genm_phi_sigma[nj][ip] = new TH1D(Form("all_hrescrpt_genm_phi_sigma%d_%d", nj, ip), Form("Sigma of (Reco/Gen) jet pt vs. phi for %s;#phi;sigma", calgo[nj]), nphi, phibins);
+			all_hrescrpt_genm_phi_sigma[nj][ip] = new TH1D(Form("all_hrescrpt_genm_phi_sigma%d_%d", nj, ip), Form("Sigma of (Reco/Gen) jet pt vs. phi for %s", calgo[nj]), nphi, phibins);
 			//all_hrescrpt_genm_phi_sigma[nj][ip] -> SetAxisRange(10,120,"X"); 
-			all_hrescrpt_genm_phi_sigma[nj][ip] -> SetAxisRange(0,0.5,"Y"); 
+			all_hrescrpt_genm_phi_sigma[nj][ip] -> SetAxisRange(-0.01,0.03,"Y"); 
 			all_hrescrpt_genm_phi_sigma[nj][ip] -> SetMarkerStyle(20); 
 		}
-		
+		//all_hrescrpt_genm[nj] -> SetBinContent(1, 1.4);	
+		//all_hrescrpt_genm[nj] -> SetBinContent(2, 1.0);	
+        		cout << "137" << endl;
+
 		for(int ip=0; ip<np;ip++){
-			all_hresrrpt_genm[nj] -> SetBinContent(ip+1, hresrrpt_genm[nj][ip]->GetMean());	
+			all_hresrrpt_genm[nj] -> SetBinContent(ip+1, hresrrpt_genm_mean[nj][ip]);	
 			all_hresrrpt_genm[nj] -> SetBinError(ip+1,hresrrpt_genm[nj][ip] -> GetMeanError());
-			all_hresrrpt_genm_sigma[nj] -> SetBinContent(ip+1, hresrrpt_genm[nj][ip]->GetRMS());	
-			all_hresrrpt_genm_sigma[nj] -> SetBinError(ip+1, hresrrpt_genm[nj][ip]->GetRMSError());	
-			
-			all_hrescrpt_genm[nj] -> SetBinContent(ip+1, hrescrpt_genm[nj][ip]->GetMean());	
+			all_hrescrpt_genm[nj] -> SetBinContent(ip+1, hrescrpt_genm_mean[nj][ip]);	
 			all_hrescrpt_genm[nj] -> SetBinError(ip+1, hrescrpt_genm[nj][ip]-> GetMeanError());	
-			all_hrescrpt_genm_sigma[nj] -> SetBinContent(ip+1, hrescrpt_genm[nj][ip]->GetRMS());	
+			all_hresrrpt_genm_sigma[nj] -> SetBinContent(ip+1, hresrrpt_genm_sigma[nj][ip]);	
+			all_hresrrpt_genm_sigma[nj] -> SetBinError(ip+1, hresrrpt_genm[nj][ip]->GetRMSError());	
+			all_hrescrpt_genm_sigma[nj] -> SetBinContent(ip+1, hrescrpt_genm_sigma[nj][ip]);	
 			all_hrescrpt_genm_sigma[nj] -> SetBinError(ip+1, hrescrpt_genm[nj][ip]->GetRMSError());	
+			//cout << "are two same? : " << hresrrpt_genm_mean[nj][ip] << ", " << all_hresrrpt_genm[nj] -> GetBinContent(ip) << endl;
 
 			for(int ieta=0; ieta<neta; ieta++){	
-				all_hrescrpt_genm_eta[nj][ip] -> SetBinContent(ieta+1, hrescrpt_genm_eta[nj][ip][ieta]->GetMean());	
+				all_hrescrpt_genm_eta[nj][ip] -> SetBinContent(ieta+1, hrescrpt_genm_eta_mean[nj][ip][ieta]);	
 				all_hrescrpt_genm_eta[nj][ip] -> SetBinError(ieta+1, hrescrpt_genm_eta[nj][ip][ieta]->GetMeanError());	
-				all_hrescrpt_genm_eta_sigma[nj][ip] -> SetBinContent(ieta+1, hrescrpt_genm_eta[nj][ip][ieta]->GetRMS());	
+				all_hrescrpt_genm_eta_sigma[nj][ip] -> SetBinContent(ieta+1, hrescrpt_genm_eta_sigma[nj][ip][ieta]);	
 				all_hrescrpt_genm_eta_sigma[nj][ip] -> SetBinError(ieta+1, hrescrpt_genm_eta[nj][ip][ieta]->GetRMSError());	
 			}	
 
 			for(int iphi=0; iphi<nphi; iphi++){
-				all_hrescrpt_genm_phi[nj][ip] -> SetBinContent(iphi+1, hrescrpt_genm_phi[nj][ip][iphi]->GetMean());	
+				all_hrescrpt_genm_phi[nj][ip] -> SetBinContent(iphi+1, hrescrpt_genm_phi_mean[nj][ip][iphi]);	
 				all_hrescrpt_genm_phi[nj][ip] -> SetBinError(iphi+1, hrescrpt_genm_phi[nj][ip][iphi]->GetMeanError());	
-				all_hrescrpt_genm_phi_sigma[nj][ip] -> SetBinContent(iphi+1, hrescrpt_genm_phi[nj][ip][iphi]->GetRMS());	
+				all_hrescrpt_genm_phi_sigma[nj][ip] -> SetBinContent(iphi+1, hrescrpt_genm_phi_sigma[nj][ip][iphi]);	
 				all_hrescrpt_genm_phi_sigma[nj][ip] -> SetBinError(iphi+1, hrescrpt_genm_phi[nj][ip][iphi]->GetRMSError());
 			}
 		}
 	}
 
-	TLine* t1 = new TLine(ptbins[0],1.01,ptbins[np],1.01);
+	TLine* t1 = new TLine(0,1,1000,1);
 	t1->SetLineWidth(1);
 	t1->SetLineStyle(7); // 7 is jumSun , 1 is onSun
 	t1->SetLineColor(1); // 2 is red
 
-	TLine* t2 = new TLine(ptbins[0],0.99,ptbins[np],0.99);
-	t2->SetLineWidth(1);
-	t2->SetLineStyle(7); // 7 is jumSun , 1 is onSun
-	t2->SetLineColor(1); // 2 is red
+	TCanvas* ctot = new TCanvas("ctot", "ctot",600,800);
+	ctot -> Divide(3,4);
 
-	TLine* t3 = new TLine(30,0.95,30,1.05);
-	t3->SetLineWidth(1.5);
-	t3->SetLineStyle(7); // 7 is jumSun , 1 is onSun
-	t3->SetLineColor(2); // 2 is red
-
-
-	TCanvas* cPF = new TCanvas("cPF", "cPF",900,600);
-	cPF -> Divide(3,2);
-
-	for(int nj=0; nj<3; nj++){//ak3PF, ak4PF, ak5PF
-		cPF -> cd(nj+1);
+	for(int nj=0; nj<kAlgos; nj++){
+		ctot -> cd(nj+1);
 		all_hrescrpt_genm[nj] -> Draw("pl");
-		all_hrescrpt_genm[nj] -> SetMarkerSize(0.5);
-		t1 -> Draw();
-		t2 -> Draw();
-		t3 -> Draw();
-		
-		cPF -> cd(nj+4);
-		all_hrescrpt_genm_sigma[nj] -> Draw("pl");
-		all_hrescrpt_genm_sigma[nj] -> SetMarkerSize(0.5);
-	
+		all_hrescrpt_genm[nj] -> SetMarkerSize(0.2);
 	}
-	cPF -> SaveAs("pdf/closureJEC_PF.pdf");
 
-	TCanvas* cCalo = new TCanvas("cCalo", "cCalo",900,600);
-	cCalo -> Divide(3,2);
+	/*
 
-	for(int nj=3; nj<6; nj++){//ak3Calo, ak4Calo, ak5Calo
-		cCalo -> cd(nj+1-3);
-		all_hrescrpt_genm[nj] -> Draw("pl");
-		all_hrescrpt_genm[nj] -> SetMarkerSize(0.5);
-		t1 -> Draw();
-		t2 -> Draw();
-		t3 -> Draw();
-		
-		cCalo -> cd(nj+4-3);
-		all_hrescrpt_genm_sigma[nj] -> Draw("pl");
-		all_hrescrpt_genm_sigma[nj] -> SetMarkerSize(0.5);
-	
-	}
-	cCalo -> SaveAs("pdf/closureJEC_Calo.pdf");
+	   TCanvas* c1 = new TCanvas("c1", "c1", 1200, 600);
+	   TCanvas* c2 = new TCanvas("c2", "c2", 1200, 600);
+	   TCanvas* c3 = new TCanvas("c3", "c3", 1200, 600);
+	   TCanvas* c4 = new TCanvas("c4", "c4", 1200, 600);
+	   TCanvas* c5 = new TCanvas("c5", "c5", 1200, 600);
+	   TCanvas* c6 = new TCanvas("c6", "c6", 1200, 600);
+	   c1 -> Divide(3,2);
+	   c2 -> Divide(3,2);
+	   c3 -> Divide(3,2);
+	   c4 -> Divide(3,2);
+	   c5 -> Divide(3,2);
+	   c6 -> Divide(3,2);
 
-	TCanvas* cPuPF = new TCanvas("cPuPF", "cPuPF",900,600);
-	cPuPF -> Divide(3,2);
-
-	for(int nj=6; nj<9; nj++){//akPu3PF, akPu4PF, akPu5PF
-		cPuPF -> cd(nj+1-6);
-		all_hrescrpt_genm[nj] -> Draw("pl");
-		all_hrescrpt_genm[nj] -> SetMarkerSize(0.5);
-		t1 -> Draw();
-		t2 -> Draw();
-		t3 -> Draw();
-		
-		cPuPF -> cd(nj+4-6);
-		all_hrescrpt_genm_sigma[nj] -> Draw("pl");
-		all_hrescrpt_genm_sigma[nj] -> SetMarkerSize(0.5);
-	
-	}
-	cPuPF -> SaveAs("pdf/closureJEC_PuPF.pdf");
-	
-	TCanvas* cPuCalo = new TCanvas("cPuCalo", "cPuCalo",900,600);
-	cPuCalo -> Divide(3,2);
-
-	for(int nj=9; nj<12; nj++){//akPu3Calo, akPu4Calo, akPu5Calo
-		cPuCalo -> cd(nj+1-9);
-		all_hrescrpt_genm[nj] -> Draw("pl");
-		all_hrescrpt_genm[nj] -> SetMarkerSize(0.5);
-		t1 -> Draw();
-		t2 -> Draw();
-		t3 -> Draw();
-		
-		cPuCalo -> cd(nj+4-9);
-		all_hrescrpt_genm_sigma[nj] -> Draw("pl");
-		all_hrescrpt_genm_sigma[nj] -> SetMarkerSize(0.5);
-	
-	}
-	cPuCalo -> SaveAs("pdf/closureJEC_PuCalo.pdf");
+	   for(int i=0; i<4; i++){//akCalo, akPuCalo, akPF, akPuPF 
+// mean value 
+c1 -> cd(i+1);
+all_hrescrpt_genm[i] -> Draw("p");
+c2 -> cd(i+1);
+all_hrescrpt_genm[i+4] -> Draw("p");
+c3 -> cd(i+1);
+all_hrescrpt_genm[i+8] -> Draw("p");
+c4 -> cd(i+1);
+all_hrescrpt_genm[i+12] -> Draw("p");
+c5 -> cd(i+1);
+all_hrescrpt_genm[i+16] -> Draw("p");
+c6 -> cd(i+1);
+all_hrescrpt_genm[i+20] -> Draw("p");
+//sigma
+c1 -> cd(i+4);
+all_hrescrpt_genm_sigma[i] -> Draw("p");
+c2 -> cd(i+4);
+all_hrescrpt_genm_sigma[i+4] -> Draw("p");
+c3 -> cd(i+4);
+all_hrescrpt_genm_sigma[i+8] -> Draw("p");
+c4 -> cd(i+4);
+all_hrescrpt_genm_sigma[i+12] -> Draw("p");
+c5 -> cd(i+4);
+all_hrescrpt_genm_sigma[i+16] -> Draw("p");
+c6 -> cd(i+4);
+all_hrescrpt_genm_sigma[i+20] -> Draw("p");
+}
+*/
 }

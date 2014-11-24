@@ -117,7 +117,7 @@ int CalJec(const char *ksp="pPb")
   int knj = kAlgos;
 
   //inname="leading_gammajet_pPb_bacJEC_mergedpthatbins_test_MC.root";
-  inname="leading_gammajet_pPb_bacJEC_mergedpthatbins_test_MC.root";
+  inname="merged_pPb_leadingpho_v1.root";
   //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_bacJEC_mergedpthatbins_Track8_Jet29_MC.root";
   //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_official_mergedpthatbins_Track8_Jet28_MC.root";
 
@@ -126,7 +126,7 @@ int CalJec(const char *ksp="pPb")
   std::string outname="";
   //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_official_Track8_Jet28_MC.root";
   //outname="JetResponse_histos_lowpt_ppSignal_pbpbReco_final_Track8_Jet28_MC.root";
-  outname="JetResponse_histos_lowpt_ppSignal_pPbReco_leading_gammajet.root";
+  outname="afterJEC_output_test.root";
 
   TFile *fout = new TFile(outname.c_str(),"RECREATE");
 

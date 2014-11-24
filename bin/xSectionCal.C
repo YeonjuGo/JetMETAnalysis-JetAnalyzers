@@ -12,7 +12,7 @@
 using namespace std;
 
 void xSectionCal(const char *ksp="pp"){
-    const int nFile = 6;
+    const int nFile = 5;
 
     /* 
     //pp    
@@ -26,12 +26,11 @@ void xSectionCal(const char *ksp="pp"){
   */  
     // pPb
     const char *fileName[nFile] = {
-        "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_pPbstyle_MC_5020GeV/pp_pPbstyle_MC_AllQCDPhotons_PtHat15_5020GeV.root",
-        "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_pPbstyle_MC_5020GeV/pp_pPbstyle_MC_AllQCDPhotons_PtHat30_5020GeV.root",
-        "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_pPbstyle_MC_5020GeV/pp_pPbstyle_MC_AllQCDPhotons_PtHat50_5020GeV.root",
-        "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_pPbstyle_MC_5020GeV/pp_pPbstyle_MC_AllQCDPhotons_PtHat80_5020GeV.root",
-        "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_pPbstyle_MC_5020GeV/pp_pPbstyle_MC_AllQCDPhotons_PtHat120_5020GeV.root",
-        "/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pp_pPbstyle_MC_5020GeV/pp_pPbstyle_MC_AllQCDPhotons_PtHat170_5020GeV.root"
+	    "/u/user/goyeonju/PRODUCTION/CMSSW_5_3_20/src/pPb_JEC/merging-forest/pPbAllQCD15/JEC_pPbAllQCD15.root",        
+	    "/u/user/goyeonju/PRODUCTION/CMSSW_5_3_20/src/pPb_JEC/merging-forest/pPbAllQCD30/JEC_pPbAllQCD30.root",        
+	    "/u/user/goyeonju/PRODUCTION/CMSSW_5_3_20/src/pPb_JEC/merging-forest/pPbAllQCD50/JEC_pPbAllQCD50.root",        
+	    "/u/user/goyeonju/PRODUCTION/CMSSW_5_3_20/src/pPb_JEC/merging-forest/pPbAllQCD80/JEC_pPbAllQCD80.root",        
+	    "/u/user/goyeonju/PRODUCTION/CMSSW_5_3_20/src/pPb_JEC/merging-forest/pPbAllQCD120/JEC_pPbAllQCD120.root"        
     };
 
 
@@ -57,9 +56,9 @@ void xSectionCal(const char *ksp="pp"){
         pEnt[ifile][1] = jetTree[ifile] -> GetEntries("pthat>=30 && pthat<50");
         pEnt[ifile][2] = jetTree[ifile] -> GetEntries("pthat>=50 && pthat<80");
         pEnt[ifile][3] = jetTree[ifile] -> GetEntries("pthat>=80 && pthat<120");
-        pEnt[ifile][4] = jetTree[ifile] -> GetEntries("pthat>=120 && pthat<170");
-        pEnt[ifile][5] = jetTree[ifile] -> GetEntries("pthat>=170 && pthat<9999");
-        cout << jetTree[ifile] << ", : " << pEnt[ifile][0] << ", " << pEnt[ifile][1] <<  ", " << pEnt[ifile][2] <<  ", " << pEnt[ifile][3] <<  ", " << pEnt[ifile][4] <<  ", " << pEnt[ifile][5] << ", total Entries = " << totalEnt[ifile] << endl;
+        pEnt[ifile][4] = jetTree[ifile] -> GetEntries("pthat>=120 && pthat<9999");
+       // pEnt[ifile][5] = jetTree[ifile] -> GetEntries("pthat>=170 && pthat<9999");
+        cout << jetTree[ifile] << ", : " << pEnt[ifile][0] << ", " << pEnt[ifile][1] <<  ", " << pEnt[ifile][2] <<  ", " << pEnt[ifile][3] <<  ", " << pEnt[ifile][4] <<  ", " << ", total Entries = " << totalEnt[ifile] << endl;
     }
 
     //
@@ -70,6 +69,13 @@ void xSectionCal(const char *ksp="pp"){
         weight[ipart] = (pEnt[0][ipart])/(pEnt[0][ipart]+pEnt[1][ipart]+pEnt[2][ipart]+pEnt[3][ipart]+pEnt[4][ipart]+pEnt[5][ipart]);
         cout << ipart << "th partition weight : " << weight[ipart] << endl;
     }
+
+	cout << "devide the range of pthat15 and each entries : " << endl;
+	cout << "pthat 15 - 30 : " << pEnt[0][0]+pEnt[0][1]+pEnt[0][2]+pEnt[0][3]+pEnt[0][4] << endl;
+	cout << "pthat 30 - 50 : " << pEnt[0][1]+pEnt[0][2]+pEnt[0][3]+pEnt[0][4]  << endl;
+	cout << "pthat 50 - 80 : " << pEnt[0][2]+pEnt[0][3]+pEnt[0][4]  << endl;
+	cout << "pthat 80 - 120 : " << pEnt[0][3]+pEnt[0][4] << endl;
+	cout << "pthat 120 - 9999 : " << pEnt[0][4] << endl;
 
     TH1D *hpthat[nFile];
     for(int ifile=0; ifile<nFile; ifile++){
