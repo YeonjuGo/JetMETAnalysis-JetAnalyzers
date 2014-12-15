@@ -229,8 +229,8 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
 
       if(pthat > maxpthat) continue; 
 
-      if(pprimaryVertexFilter == 0) continue;// skim selection cut
-      if(pPAcollisionEventSelectionPA == 0) continue;// skim selection cut
+      //if(pprimaryVertexFilter == 0) continue;// skim selection cut
+      //if(pPAcollisionEventSelectionPA == 0) continue;// skim selection cut
       //if(pPAprimaryVertexFilter== 0) continue;// skim selection cut
 
       if(nPhotons == 0) continue;// no photon event

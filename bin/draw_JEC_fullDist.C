@@ -57,8 +57,9 @@ void draw_JEC_fullDist(){
 	const int np = 11;
 	//TFile* fin = new TFile("afterJEC_output_v1.root");
 	//TFile* fin = new TFile("afterJEC_output_v3_nonPuJEC.root");
-	TFile* fin = new TFile("afterJEC_output_v3.root");
-	gStyle -> SetOptStat(0);
+//	TFile* fin = new TFile("afterJEC_output_v3.root");
+	TFile* fin = new TFile("afterJEC_output_Pbp.root");
+	gStyle -> SetOptStat(0);`
 	
 	// raw/gen pt dep.
 	TH1D* hresrrpt_genm[kAlgos][npt];

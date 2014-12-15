@@ -46,7 +46,7 @@ void draw_response_fullDist(){
 	gStyle->SetPadBottomMargin(0.15); 
 	gStyle->SetPadLeftMargin(0.1); 
 	gStyle->SetPadRightMargin(0.05); 
-	std::string inname="response_v1.root";
+	std::string inname="response.root";
 	TFile* fin = new TFile(inname.c_str(),"r");
 
 

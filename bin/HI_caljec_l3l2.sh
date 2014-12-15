@@ -2,18 +2,19 @@
 echo "Running for gammajet........... "
 
 # Generate the response
-#jet_response_analyzer_x  jra_lowpt.config -input merged_pPb_leadingpho_v1.root -useweight true \
-#   -output response.root \
-#   -algs \
-#    ak3CaloJetAnalyzer:0.3 ak3PFJetAnalyzer:0.3 \
-#    ak4CaloJetAnalyzer:0.3 ak4PFJetAnalyzer:0.3 \
-#    ak5CaloJetAnalyzer:0.3 ak5PFJetAnalyzer:0.3 \
-#    akVs3CaloJetAnalyzer:0.3 akVs3PFJetAnalyzer:0.3 \
-#    akVs4CaloJetAnalyzer:0.3 akVs4PFJetAnalyzer:0.3 \
-#    akVs5CaloJetAnalyzer:0.3 akVs5PFJetAnalyzer:0.3 \
-#    akPu3CaloJetAnalyzer:0.3 akPu3PFJetAnalyzer:0.3 \
-#    akPu4CaloJetAnalyzer:0.3 akPu4PFJetAnalyzer:0.3 \
-#    akPu5CaloJetAnalyzer:0.3 akPu5PFJetAnalyzer:0.3 \
+#jet_response_analyzer_x  jra_lowpt.config -input merged_Pbp_leadingpho_v1.root -useweight true \
+jet_response_analyzer_x jra_lowpt_backup.config -input merged_pp_leadingpho_v1.root -useweight true \
+   -output response.root \
+   -algs \
+    ak3CaloJetAnalyzer:0.3 ak3PFJetAnalyzer:0.3 \
+    ak4CaloJetAnalyzer:0.3 ak4PFJetAnalyzer:0.3 \
+    ak5CaloJetAnalyzer:0.3 ak5PFJetAnalyzer:0.3 \
+    akVs3CaloJetAnalyzer:0.3 akVs3PFJetAnalyzer:0.3 \
+    akVs4CaloJetAnalyzer:0.3 akVs4PFJetAnalyzer:0.3 \
+    akVs5CaloJetAnalyzer:0.3 akVs5PFJetAnalyzer:0.3 \
+    akPu3CaloJetAnalyzer:0.3 akPu3PFJetAnalyzer:0.3 \
+    akPu4CaloJetAnalyzer:0.3 akPu4PFJetAnalyzer:0.3 \
+    akPu5CaloJetAnalyzer:0.3 akPu5PFJetAnalyzer:0.3 \
 #exit
 
 
