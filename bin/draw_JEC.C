@@ -58,7 +58,8 @@ void draw_JEC(){
 	//TFile* fin = new TFile("afterJEC_output_v1.root");
 	//TFile* fin = new TFile("afterJEC_output_v3_nonPuJEC.root");
 	//TFile* fin = new TFile("afterJEC_output_Pbp.root");
-	TFile* fin = new TFile("afterJEC_output_pp.root");
+//	TFile* fin = new TFile("afterJEC_output_pp.root");
+	TFile* fin = new TFile("afterJEC_output_test.root");
 	gStyle -> SetOptStat(0);
 	
 	// raw/gen pt dep.

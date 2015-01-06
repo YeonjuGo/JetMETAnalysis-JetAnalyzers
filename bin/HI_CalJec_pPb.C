@@ -117,9 +117,8 @@ int CalJec(const char *ksp="pPb")
   int knj = kAlgos;
 
   //inname="leading_gammajet_pPb_bacJEC_mergedpthatbins_test_MC.root";
-  inname="merged_pPb_leadingpho_v1.root";
-  //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_bacJEC_mergedpthatbins_Track8_Jet29_MC.root";
-  //inname="/net/hidsk0001/d00/scratch/pawan/combinedPtHat/dijet_pbpb_official_mergedpthatbins_Track8_Jet28_MC.root";
+  //inname="merged_pPb_leadingpho_v1.root";
+  inname="merged_pPb_leadingpho_bugfixed.root"; // to test official JEC correction forest
 
   TFile *fin = new TFile(inname.c_str(),"r");
 

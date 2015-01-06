@@ -239,15 +239,15 @@ int weight(const char *infile="/mnt/hadoop/cms/store/user/belt/Validations53X/Tr
       Float_t leadingPt = 15; //minPt is 40GeV
       Int_t leadingIndex = -1;
 
-      for(Int_t i = 0; i<nPhotons; ++i)
+      for(Int_t ipho = 0; ipho<nPhotons; ++ipho)
       {
-          if(hadronicOverEm[i]>=0.1) continue;
-          if(TMath::Abs(genMomId[i])>22) continue;
-          if(isGenMatched[i]!=1) continue;
-          if(pt[i] > leadingPt)
+          if(hadronicOverEm[ipho]>=0.1) continue;
+          if(TMath::Abs(genMomId[ipho])>22) continue;
+          if(isGenMatched[ipho]!=1) continue;
+          if(pt[ipho] > leadingPt)
           {
-              leadingPt = pt[i];
-              leadingIndex = i;
+              leadingPt = pt[ipho];
+              leadingIndex = ipho;
           }
       }
 
